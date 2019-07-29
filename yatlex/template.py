@@ -9,7 +9,7 @@
 
 import logging
 import os
-import sys
+# import sys
 from functools import wraps
 from re import compile, sub, escape, DOTALL
 from .xmlescape import xmlescape
@@ -18,11 +18,19 @@ from io import StringIO
 basestring = str
 unicodeT = str
 
+
 def to_bytes(obj, charset='utf-8', errors='strict'):
-    return bytes(obj) if isinstance(obj, (bytes, bytearray, memoryview)) else obj.encode(charset, errors)
+    if isinstance(obj, (bytes, bytearray, memoryview)):
+        return bytes(obj)
+    else:
+        return obj.encode(charset, errors)
+
 
 def to_native(obj, charset='utf8', errors='strict'):
-    return obj if isinstance(obj, str) else obj.decode(charset, errors)
+    if isinstance(obj, str):
+        return obj
+    else:
+        return obj.decode(charset, errors)
 
 
 DEFAULT_DELIMITERS = ('{{', '}}')
@@ -35,6 +43,7 @@ def file_reader(filename, mode='rb'):
         return body
     except IOError:
         raise RestrictedError(filename, '', 'Unable to find the file')
+
 
 try:
     # have web2py

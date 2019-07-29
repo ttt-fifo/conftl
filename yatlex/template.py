@@ -45,17 +45,9 @@ def file_reader(filename, mode='rb'):
         raise RestrictedError(filename, '', 'Unable to find the file')
 
 
-try:
-    # have web2py
-    from gluon.restricted import RestrictedError
-    from gluon.globals import current
-except ImportError:
-    # do not have web2py
-    current = None
-
-    def RestrictedError(a, b, c):
-        logging.error(str(a) + ':' + str(b) + ':' + str(c))
-        return RuntimeError
+def RestrictedError(a, b, c):
+    logging.error(str(a) + ':' + str(b) + ':' + str(c))
+    return RuntimeError
 
 
 class Node(object):
@@ -443,8 +435,6 @@ class TemplateParser(object):
 
         # Allow Views to include other views dynamically
         context = self.context
-        if current and "response" not in context:
-            context["response"] = getattr(current, 'response', None)
 
         # Get the filename; filename looks like ``"template.html"``.
         # We need to eval to remove the quotes and get the string type.

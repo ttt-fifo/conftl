@@ -870,7 +870,8 @@ def render(content=None,
            delimiters='{{ }}',
            writer='response.write',
            reader=None,
-           xmlescape=False
+           xmlescape=False,
+           sanitizeeol=True
            ):
     """
     Generic render function
@@ -884,7 +885,9 @@ def render(content=None,
         lexers: custom lexers to use
         delimiters: opening and closing tags
         writer: where to inject the resulting stream
-        xmlescape: do we need XML escape feature? True or False
+        xmlescape: do we need XML escape feature? True or False, default False
+        sanitizeeol: do we need sanitize EOL feature? True or False,
+                     default True
     """
 
     # If we don't have anything to render, why bother?
@@ -916,19 +919,20 @@ def render(content=None,
     # for using yatl with non-html files
     # (for example text configuration files)
 
-    # we need to work with unicode string (py3)
-    if not isinstance(content, str):
-        content = content.decode()
+    if sanitizeeol:
+        # we need to work with unicode string (py3)
+        if not isinstance(content, str):
+            content = content.decode()
 
-    # construct the regexp to find one block
-    # which starts with delimiter and ends with delimiter
-    regexp_block = delimiters[0] + \
-        '(?P<block_content>.+)' + \
-        delimiters[1] + '?' + \
-        '\\n{0,1}'
-    # substitute all regexp found
-    # note: repl is a helper function
-    content = re.sub(regexp_block, repl, content)
+        # construct the regexp to find one block
+        # which starts with delimiter and ends with delimiter
+        regexp_block = delimiters[0] + \
+            '(?P<block_content>.+)' + \
+            delimiters[1] + '?' + \
+            '\\n{0,1}'
+        # substitute all regexp found
+        # note: repl is a helper function
+        content = re.sub(regexp_block, repl, content)
     # --- end Sanitize EOL feature ---
 
     if isinstance(content, str):

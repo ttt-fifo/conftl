@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 xmlescape function
-migrated from yaml/sanitizer.py
+migrated from web2py/yatl/sanitizer.py
 """
 from html import escape
 

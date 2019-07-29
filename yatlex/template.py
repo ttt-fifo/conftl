@@ -15,7 +15,6 @@ from re import compile, sub, escape, DOTALL
 from .xmlescape import xmlescape
 
 from io import StringIO
-basestring = str
 unicodeT = str
 
 
@@ -789,7 +788,7 @@ def parse_template(filename,
     delimiters = delimiters or DEFAULT_DELIMITERS
     reader = reader or file_reader
     # First, if we have a str try to open the file
-    if isinstance(filename, basestring):
+    if isinstance(filename, str):
         if callable(path):
             text = path(filename)
         else:
@@ -895,7 +894,7 @@ def render(content=None,
         context = {}
     if lexers is None:
         lexers = {}
-    if isinstance(delimiters, basestring):
+    if isinstance(delimiters, str):
         delimiters = delimiters.split(' ',1)
     if not reader:
         reader = file_reader

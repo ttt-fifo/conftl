@@ -8,7 +8,7 @@
 
 import os
 from functools import wraps
-from re import compile, sub, escape, DOTALL
+import re
 from .xmlescape import xmlescape
 
 from io import StringIO
@@ -239,16 +239,17 @@ class TemplateParser(object):
             template that need to be handled.
 
     """
-    r_multiline = compile(r'(""".*?""")|(\'\'\'.*?\'\'\')', DOTALL)
+    r_multiline = re.compile(r'(""".*?""")|(\'\'\'.*?\'\'\')', re.DOTALL)
 
     # These are used for re-indentation.
     # Indent + 1
-    re_block = compile('^(elif |else:|except:|except |finally:).*$', DOTALL)
+    re_block = re.compile('^(elif |else:|except:|except |finally:).*$',
+                          re.DOTALL)
 
     # Indent - 1
-    re_unblock = compile('^(return|continue|break|raise)( .*)?$', DOTALL)
+    re_unblock = re.compile('^(return|continue|break|raise)( .*)?$', re.DOTALL)
     # Indent - 1
-    re_pass = compile('^pass( .*)?$', DOTALL)
+    re_pass = re.compile('^pass( .*)?$', re.DOTALL)
 
     def __init__(self, text,
                  name="ParserContainer",
@@ -288,8 +289,9 @@ class TemplateParser(object):
         self.context = context
 
         self.delimiters = delimiters
-        escaped_delimiters = (escape(delimiters[0]), escape(delimiters[1]))
-        self.r_tag = compile(r'(%s.*?%s)' % escaped_delimiters, DOTALL)
+        escaped_delimiters = (re.escape(delimiters[0]),
+                              re.escape(delimiters[1]))
+        self.r_tag = re.compile(r'(%s.*?%s)' % escaped_delimiters, re.DOTALL)
 
         # Create a root level Content that everything will go into.
         self.content = Content(name=name)
@@ -592,9 +594,9 @@ class TemplateParser(object):
                     # Perform block comment escaping.
                     # This performs escaping ON anything
                     # in between """ and """
-                    line = sub(TemplateParser.r_multiline,
-                               remove_newline,
-                               line)
+                    line = re.sub(TemplateParser.r_multiline,
+                                  remove_newline,
+                                  line)
 
                     if line.startswith('='):
                         # IE: {{=response.title}}

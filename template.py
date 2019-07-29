@@ -14,29 +14,15 @@ from functools import wraps
 from re import compile, sub, escape, DOTALL
 from . helpers import xmlescape
 
-PY2 = sys.version_info[0] == 2
+from io import StringIO
+basestring = str
+unicodeT = str
 
-if PY2:
-    from cStringIO import StringIO
-    basestring = basestring
-    unicodeT = unicode
+def to_bytes(obj, charset='utf-8', errors='strict'):
+    return bytes(obj) if isinstance(obj, (bytes, bytearray, memoryview)) else obj.encode(charset, errors)
 
-    def to_bytes(obj, charset='utf-8', errors='strict'):
-        return bytes(obj) if isinstance(obj, (bytes, bytearray, buffer)) else obj.encode(charset, errors)
-
-    def to_native(obj, charset='utf8', errors='strict'):
-        return obj if isinstance(obj, str) else obj.encode(charset, errors)
-
-else:
-    from io import StringIO
-    basestring = str
-    unicodeT = str
-
-    def to_bytes(obj, charset='utf-8', errors='strict'):
-        return bytes(obj) if isinstance(obj, (bytes, bytearray, memoryview)) else obj.encode(charset, errors)
-
-    def to_native(obj, charset='utf8', errors='strict'):
-        return obj if isinstance(obj, str) else obj.decode(charset, errors)
+def to_native(obj, charset='utf8', errors='strict'):
+    return obj if isinstance(obj, str) else obj.decode(charset, errors)
 
 
 DEFAULT_DELIMITERS = ('{{', '}}')
@@ -831,12 +817,7 @@ class DummyResponse():
         elif hasattr(data, 'xml') and callable(data.xml):
             data = data.xml()
         else:
-            if PY2 and isinstance(data, unicodeT):
-                # in python2 we always encode unicode
-                data = data.encode('utf8', 'xmlcharrefreplace')
-            else:
-                # in python3 we always use unicode
-                data = str(data)
+            data = str(data)
             data = xmlescape(data)
         self.body.write(str(data))
 

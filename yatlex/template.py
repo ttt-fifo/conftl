@@ -15,7 +15,6 @@ from re import compile, sub, escape, DOTALL
 from .xmlescape import xmlescape
 
 from io import StringIO
-unicodeT = str
 
 
 def to_bytes(obj, charset='utf-8', errors='strict'):
@@ -915,7 +914,7 @@ def render(content=None,
         if 'NOESCAPE' not in context:
             context['NOESCAPE'] = NOESCAPE
 
-    if isinstance(content, unicodeT):
+    if isinstance(content, str):
         content = content.encode('utf8')
 
     # save current response class

@@ -7,7 +7,6 @@
 """
 
 import os
-from functools import wraps
 import re
 from .xmlescape import xmlescape
 
@@ -971,41 +970,3 @@ def render(content=None,
     if old_response_body is not None:
         context['response'].body = old_response_body
     return text
-
-
-class template(object):
-
-    def __init__(self,
-                 filename='{name}.html',
-                 body=None,
-                 path=None,
-                 lexers=None,
-                 delimiters=None,
-                 reader=None):
-        self.filename = filename
-        self.body = body
-        self.path = path
-        self.lexers = lexers
-        self.delimiters = delimiters
-        self.reader = reader or file_reader
-
-    def __call__(self, func):
-        @wraps(func)
-        def wrapper(*a, **b):
-            context = func(*a, **b)
-            if isinstance(context, dict):
-                filename = self.filename.format(name=func.__name__)
-                if self.body:
-                    body = self.body
-                else:
-                    body = self.reader(filename)
-                return render(
-                    content=body,
-                    path=self.path,
-                    lexers=self.lexers,
-                    delimiters=self.delimiters,
-                    context=context,
-                    reader=self.reader)
-            else:
-                return context
-        return wrapper

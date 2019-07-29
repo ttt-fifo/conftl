@@ -830,20 +830,20 @@ class DummyResponse():
         self.body.write(str(data))
 
 
-class NOESCAPE():
+class DummyResponseNOESCAPE():
     """
-    A little helper to avoid escaping.
+    The same class as DummyResponse, but never
+    escapes XML
     """
-    def __init__(self, text):
-        self.text = text
+    def __init__(self):
+        self.body = StringIO()
 
-    def xml(self):
-        return self.text
+    def write(self, data, escape=True):
+        self.body.write(str(data))
+
 
 # And this is a generic render function.
 # Here for integration with gluon.
-
-
 def render(content=None,
            stream=None,
            filename=None,
@@ -852,7 +852,8 @@ def render(content=None,
            lexers=None,
            delimiters='{{ }}',
            writer='response.write',
-           reader=None
+           reader=None,
+           xmlescape=False
            ):
     """
     Generic render function
@@ -866,6 +867,7 @@ def render(content=None,
         lexers: custom lexers to use
         delimiters: opening and closing tags
         writer: where to inject the resulting stream
+        xmlescape: do we need XML escape feature? True or False
     """
 
     # If we don't have anything to render, why bother?
@@ -887,16 +889,11 @@ def render(content=None,
         if context['response'].delimiters is not None:
             delimiters = context['response'].delimiters
 
-    # here to avoid circular Imports
-    try:
-        from gluon.globals import Response
-    except ImportError:
-        # Working standalone. Build a mock Response object.
+    # Working standalone. Build a mock Response object.
+    if not xmlescape:
+        Response = DummyResponseNOESCAPE
+    else:
         Response = DummyResponse
-
-        # Add it to the context so we can use it.
-        if 'NOESCAPE' not in context:
-            context['NOESCAPE'] = NOESCAPE
 
     if isinstance(content, str):
         content = content.encode('utf8')

@@ -844,6 +844,22 @@ class DummyResponseNOESCAPE():
         self.body.write(str(data))
 
 
+def repl(m):
+    """
+    Helper - replacement function
+    for rexexp_block (see in render function)
+    """
+
+    # if named group 'block_content' starts with =
+    # then this is a variable.
+    # we return it as is
+    if m.groupdict()['block_content'].startswith('='):
+        return m.group(0)
+
+    # this is not a variable, strip newline and return
+    return m.group(0).rstrip('\n')
+
+
 # And this is a generic render function.
 # Here for integration with gluon.
 def render(content=None,
@@ -896,6 +912,25 @@ def render(content=None,
         Response = DummyResponseNOESCAPE
     else:
         Response = DummyResponse
+
+    # --- Sanitize EOL feature ---
+    # for using yatl with non-html files
+    # (for example text configuration files)
+
+    # we need to work with unicode string (py3)
+    if not isinstance(content, str):
+        content = content.decode()
+
+    # construct the regexp to find one block
+    # which starts with delimiter and ends with delimiter
+    regexp_block = delimiters[0] + \
+        '(?P<block_content>.+)' + \
+        delimiters[1] + '?' + \
+        '\\n{0,1}'
+    # substitute all regexp found
+    # note: repl is a helper function
+    content = re.sub(regexp_block, repl, content)
+    # --- end Sanitize EOL feature ---
 
     if isinstance(content, str):
         content = content.encode('utf8')

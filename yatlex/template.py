@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 | This file was extracted from the web2py Web Framework and made
 | framework independent
@@ -135,7 +134,8 @@ class BlockNode(Node):
         if isinstance(node, str) or isinstance(node, Node):
             self.nodes.append(node)
         else:
-            raise TypeError("Invalid type; must be instance of ``str`` or ``BlockNode``. %s" % node)
+            raise TypeError("Invalid type; must be instance of ``str`` or" +
+                            " ``BlockNode``. %s" % node)
 
     def extend(self, other):
         """
@@ -204,14 +204,16 @@ class Content(BlockNode):
 
     def append(self, node):
         """
-        Adds a node to list. If it is a BlockNode then we assign a block for it.
+        Adds a node to list.
+        If it is a BlockNode then we assign a block for it.
         """
         if isinstance(node, (str, Node)):
             self.nodes.append(node)
             if isinstance(node, BlockNode):
                 self.blocks[node.name] = node
         else:
-            raise TypeError("Invalid type, must be instance of ``str`` or ``BlockNode``. %s" % node)
+            raise TypeError("Invalid type, must be instance of ``str`` or" +
+                            " ``BlockNode``. %s" % node)
 
     def extend(self, other):
         """
@@ -262,7 +264,7 @@ class TemplateParser(object):
                  writer='response.write',
                  lexers=None,
                  delimiters=None,
-                 _super_nodes = None,
+                 _super_nodes=None,
                  reader=None,
                  ):
 
@@ -446,12 +448,15 @@ class TemplateParser(object):
         if callable(self.path):
             text = self.path(filename)
         else:
-            filepath = self.path and os.path.join(self.path, filename) or filename
+            filepath = self.path \
+                       and os.path.join(self.path, filename) \
+                       or filename
             # try to read the text.
             try:
                 text = self.reader(filepath)
             except IOError:
-                self._raise_error('Unable to open included view file: ' + filepath)
+                self._raise_error('Unable to open included view file: ' +
+                                  filepath)
         text = to_native(text)
         return text
 
@@ -477,7 +482,8 @@ class TemplateParser(object):
         parent will be placed in the parent templates `{{include}}` block.
         """
         # If no filename, create a dummy layout with only an {{include}}.
-        text = self._get_file_text(filename) or '%sinclude%s' % tuple(self.delimiters)
+        text = self._get_file_text(filename) \
+            or '%sinclude%s' % tuple(self.delimiters)
 
         # Create out nodes list to send to the parent
         super_nodes = []
@@ -564,7 +570,9 @@ class TemplateParser(object):
 
             if i:
                 if not stack:
-                    self._raise_error('The "end" tag is unmatched, please check if you have a starting "block" tag')
+                    self._raise_error('The "end" tag is unmatched,' +
+                                      ' please check if you have a' +
+                                      ' starting "block" tag')
 
                 # Our current element in the stack.
                 top = stack[-1]
@@ -573,7 +581,9 @@ class TemplateParser(object):
                     line = i
 
                     # Get rid of delimiters
-                    line = line[len(self.delimiters[0]): -len(self.delimiters[1])].strip()
+                    delimiters = self.delimiters
+                    line = line[len(delimiters[0]): -len(delimiters[1])]
+                    line = line.strip()
 
                     # This is bad juju, but let's do it anyway
                     if not line:
@@ -711,7 +721,8 @@ class TemplateParser(object):
                             # for i in range(10):
                             #   = i
                             # pass
-                            # So we can properly put a response.write() in place.
+                            # So we can properly put a response.write()
+                            # in place.
                             continuation = False
                             len_parsed = 0
                             for k, token in enumerate(tokens):
@@ -767,6 +778,7 @@ class TemplateParser(object):
 
 # We need this for integration with gluon
 
+
 def parse_template(filename,
                    path='views/',
                    context=None,
@@ -777,7 +789,8 @@ def parse_template(filename,
     """
     Args:
         filename: can be a view filename in the views folder or an input stream
-        path: is the path of a views folder of to a function to load the filename
+        path: is the path of a views folder of to a function to load
+              the filename
         context: is a dictionary of symbols used to render the template
         lexers: dict of custom lexers to use
         delimiters: opening and closing tags
@@ -801,7 +814,12 @@ def parse_template(filename,
         if context['response'].delimiters is not None:
             delimiters = context['response'].delimiters
     # Use the file contents to get a parsed template and return it.
-    return str(TemplateParser(text, context=context, path=path, lexers=lexers, delimiters=delimiters, reader=reader))
+    return str(TemplateParser(text,
+                              context=context,
+                              path=path,
+                              lexers=lexers,
+                              delimiters=delimiters,
+                              reader=reader))
 
 
 class DummyResponse():
@@ -855,33 +873,6 @@ def render(content=None,
         lexers: custom lexers to use
         delimiters: opening and closing tags
         writer: where to inject the resulting stream
-
-    Example::
-        >>> render()
-        'hello world'
-        >>> render(content='abc')
-        'abc'
-        >>> render(content="abc'")
-        "abc'"
-        >>> render(content=''''a"'bc''')
-        'a"'bc'
-        >>> render(content='a\\nbc')
-        'a\\nbc'
-        >>> render(content='a"bcd"e')
-        'a"bcd"e'
-        >>> render(content="'''a\\nc'''")
-        "'''a\\nc'''"
-        >>> render(content="'''a\\'c'''")
-        "'''a\'c'''"
-        >>> render(content='{{for i in range(a):}}{{=i}}<br />{{pass}}', context=dict(a=5))
-        '0<br />1<br />2<br />3<br />4<br />'
-        >>> render(content='{%for i in range(a):%}{%=i%}<br />{%pass%}', context=dict(a=5),delimiters=('{%','%}'))
-        '0<br />1<br />2<br />3<br />4<br />'
-        >>> render(content="{{='''hello\\nworld'''}}")
-        'hello\\nworld'
-        >>> render(content='{{for i in range(3):\\n=i\\npass}}')
-        '012'
-
     """
 
     # If we don't have anything to render, why bother?
@@ -894,7 +885,7 @@ def render(content=None,
     if lexers is None:
         lexers = {}
     if isinstance(delimiters, str):
-        delimiters = delimiters.split(' ',1)
+        delimiters = delimiters.split(' ', 1)
     if not reader:
         reader = file_reader
 
@@ -925,7 +916,6 @@ def render(content=None,
         old_response_body = None
         context['response'] = Response()
 
-
     if content is None:
         if stream is not None:
             content = stream.read()
@@ -955,9 +945,16 @@ def render(content=None,
         context['response'].body = old_response_body
     return text
 
+
 class template(object):
 
-    def __init__(self, filename='{name}.html', body=None, path=None, lexers=None, delimiters=None, reader=None):
+    def __init__(self,
+                 filename='{name}.html',
+                 body=None,
+                 path=None,
+                 lexers=None,
+                 delimiters=None,
+                 reader=None):
         self.filename = filename
         self.body = body
         self.path = path
@@ -985,4 +982,3 @@ class template(object):
             else:
                 return context
         return wrapper
-

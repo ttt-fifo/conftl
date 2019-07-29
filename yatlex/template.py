@@ -6,9 +6,7 @@
 | License: BSD
 """
 
-import logging
 import os
-# import sys
 from functools import wraps
 from re import compile, sub, escape, DOTALL
 from .xmlescape import xmlescape
@@ -39,12 +37,7 @@ def file_reader(filename, mode='rb'):
             body = fp.read()
         return body
     except IOError:
-        raise RestrictedError(filename, '', 'Unable to find the file')
-
-
-def RestrictedError(a, b, c):
-    logging.error(str(a) + ':' + str(b) + ':' + str(c))
-    return RuntimeError
+        raise RuntimeError(f'{filename} Unable to find the file')
 
 
 class Node(object):
@@ -420,7 +413,7 @@ class TemplateParser(object):
         """
         Raises an error using itself as the filename and textual content.
         """
-        raise RestrictedError(self.name, text or self.text, message)
+        raise RuntimeError(f'{self.name} {text or self.text} {message}')
 
     def _get_file_text(self, filename):
         """

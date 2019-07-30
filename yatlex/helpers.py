@@ -1,17 +1,28 @@
-import cgi
 from . import sanitizer
 from .xmlescape import xmlescape
-
 import copyreg as copy_reg
+import marshal
 str, unicode = bytes, str
 
-__all__ = ['A', 'BEAUTIFY', 'BODY', 'CAT', 'CODE', 'DIV', 'EM', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HEAD', 'HTML', 'IMG', 'INPUT', 'LABEL', 'LI', 'METATAG', 'OL', 'OPTION', 'P', 'PRE', 'SELECT', 'SPAN', 'STRONG', 'TABLE', 'TAG', 'TAGGER', 'TBODY', 'TD', 'TEXTAREA', 'TH', 'THAED', 'TR', 'UL', 'XML', 'xmlescape', 'I', 'META', 'LINK', 'TITLE']
+__all__ = ['A', 'BEAUTIFY', 'BODY', 'CAT', 'CODE', 'DIV', 'EM', 'FORM',
+           'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HEAD', 'HTML', 'IMG', 'INPUT',
+           'LABEL', 'LI', 'METATAG', 'OL', 'OPTION', 'P', 'PRE', 'SELECT',
+           'SPAN', 'STRONG', 'TABLE', 'TAG', 'TAGGER', 'TBODY', 'TD',
+           'TEXTAREA', 'TH', 'THAED', 'TR', 'UL', 'XML', 'xmlescape', 'I',
+           'META', 'LINK', 'TITLE']
+
+
+# python 3 does not have cmp function
+def cmp(a, b):
+    return (a > b) - (a < b)
 
 # ################################################################
 # New HTML Helpers
 # ################################################################
 
+
 INVALID_CHARS = set(" ='\"></")
+
 
 def _vk(k):
     """validate atribute name of tag
@@ -19,8 +30,10 @@ def _vk(k):
     """
     invalid_chars = set(k) & INVALID_CHARS
     if invalid_chars:
-        raise ValueError("Invalid caracters %s in attribute name" % list(invalid_chars))
+        msg = "Invalid caracters %s in attribute name" % list(invalid_chars)
+        raise ValueError(msg)
     return k
+
 
 class TAGGER(object):
 
@@ -35,17 +48,19 @@ class TAGGER(object):
     def xml(self):
         name = self.name
         a = ' '.join('%s="%s"' %
-                     (_vk(k[1:]), _vk(k[1:]) if v is True else xmlescape(unicode(v)))
-                     for k,v in self.attributes.items()
+                     (_vk(k[1:]), _vk(k[1:]) if v is True
+                      else xmlescape(unicode(v)))
+                     for k, v in self.attributes.items()
                      if k.startswith('_') and not (v is False or v is None))
         if a:
             a = ' '+a
         if name.endswith('/'):
             return '<%s%s/>' % (name[0:-1], a)
         else:
-            b = ''.join(s.xml() if isinstance(s,TAGGER) else xmlescape(unicode(s))
+            b = ''.join(s.xml() if isinstance(s, TAGGER)
+                        else xmlescape(unicode(s))
                         for s in self.children)
-            return '<%s%s>%s</%s>' %(name, a, b, name)
+            return '<%s%s>%s</%s>' % (name, a, b, name)
 
     def __unicode__(self):
         return self.xml()
@@ -63,15 +78,15 @@ class TAGGER(object):
         if isinstance(key, int):
             self.children[key] = value
         else:
-            self.attributes[key] =  value
+            self.attributes[key] = value
 
     def insert(self, i, value):
-        self.children.insert(i,value)
+        self.children.insert(i, value)
 
     def append(self, value):
         self.children.append(value)
 
-    def __delitem__(self,key):
+    def __delitem__(self, key):
         if isinstance(key, int):
             self.children = self.children[:key]+self.children[key+1:]
         else:
@@ -82,6 +97,7 @@ class TAGGER(object):
 
     def find(self, query):
         raise NotImplementedError
+
 
 class METATAG(object):
     __all_tags__ = set()
@@ -94,14 +110,20 @@ class METATAG(object):
         return self[name]
 
     def __getitem__(self, name):
-        return lambda *children, **attributes: TAGGER(name, *children, **attributes)
+        return lambda *children, **attributes: TAGGER(name,
+                                                      *children,
+                                                      **attributes)
+
 
 class CAT(TAGGER):
     def __init__(self, *children):
         self.children = children
 
     def xml(self):
-        return ''.join(s.xml() if isinstance(s,TAGGER) else xmlescape(unicode(s)) for s in self.children)
+        return ''.join(s.xml() if isinstance(s, TAGGER)
+                       else xmlescape(unicode(s))
+                       for s in self.children)
+
 
 TAG = METATAG()
 DIV = TAG.div
@@ -146,6 +168,7 @@ LINK = TAG['link/']
 # New XML Helpers
 # ################################################################
 
+
 class XML(TAGGER):
     """
     use it to wrap a string that contains XML/HTML so that it will not be
@@ -162,15 +185,14 @@ class XML(TAGGER):
         text,
         sanitize=False,
         permitted_tags=[
-            'a','b','blockquote','br/','i','li','ol','ul','p','cite',
-            'code','pre','img/','h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-            'table', 'tr', 'td', 'div','strong', 'span'],
+            'a', 'b', 'blockquote', 'br/', 'i', 'li', 'ol', 'ul', 'p', 'cite',
+            'code', 'pre', 'img/', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'table', 'tr', 'td', 'div', 'strong', 'span'],
         allowed_attributes={
             'a': ['href', 'title', 'target'],
             'img': ['src', 'alt'],
             'blockquote': ['type'],
-            'td': ['colspan']},
-        ):
+            'td': ['colspan']}):
         """
         Args:
             text: the XML text
@@ -218,23 +240,30 @@ class XML(TAGGER):
     def __len__(self):
         return len(self.text)
 
+
 def XML_unpickle(data):
     return XML(marshal.loads(data))
 
+
 def XML_pickle(data):
     return XML_unpickle, (marshal.dumps(str(data)),)
+
+
 copy_reg.pickle(XML, XML_pickle, XML_unpickle)
 
 # ################################################################
 # BEAUTIFY everything
 # ################################################################
 
-def BEAUTIFY(obj): # FIX ME, dealing with very large objects
+
+# FIX ME, dealing with very large objects
+def BEAUTIFY(obj):
     if isinstance(obj, TAGGER):
         return obj
     elif isinstance(obj, list):
-        return UL(*[LI(BEAUTIFY(item)) for item in  obj])
+        return UL(*[LI(BEAUTIFY(item)) for item in obj])
     elif isinstance(obj, dict):
-        return TABLE(TBODY(*[TR(TH(XML(key)),TD(BEAUTIFY(value))) for key, value in obj.items()]))
+        return TABLE(TBODY(*[TR(TH(XML(key)), TD(BEAUTIFY(value)))
+                           for key, value in obj.items()]))
     else:
         return XML(obj)

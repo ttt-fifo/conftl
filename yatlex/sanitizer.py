@@ -13,6 +13,8 @@ Cross-site scripting (XSS) defense
 from xml.sax.saxutils import quoteattr
 from html.parser import HTMLParser
 from urllib import parse as urlparse
+from htmlentitydefs import entitydefs
+from .xmlescape import xmlescape
 
 __all__ = ['sanitize']
 
@@ -36,8 +38,9 @@ class XssCleaner(HTMLParser):
             'pre',
             'img/',
         ],
-        allowed_attributes={'a': ['href', 'title'], 'img': ['src', 'alt'
-                                                            ], 'blockquote': ['type']},
+        allowed_attributes={'a': ['href', 'title'],
+                            'img': ['src', 'alt'],
+                            'blockquote': ['type']},
         strip_disallowed=False
     ):
 
@@ -55,7 +58,7 @@ class XssCleaner(HTMLParser):
 
         self.allowed_schemes = ['http', 'https', 'ftp', 'mailto']
 
-        #to strip or escape disallowed tags?
+        # to strip or escape disallowed tags?
         self.strip_disallowed = strip_disallowed
         # there might be data after final closing tag, that is to be ignored
         self.in_disallowed = [False]
@@ -67,7 +70,8 @@ class XssCleaner(HTMLParser):
     def handle_charref(self, ref):
         if self.in_disallowed[-1]:
             return
-        elif len(ref) < 7 and (ref.isdigit() or ref == 'x27'): # x27 is a special case for apostrophe
+        # x27 is a special case for apostrophe
+        elif len(ref) < 7 and (ref.isdigit() or ref == 'x27'):
             self.result += '&#%s;' % ref
         else:
             self.result += xmlescape('&#%s' % ref)
@@ -101,7 +105,8 @@ class XssCleaner(HTMLParser):
             if tag in self.allowed_attributes:
                 attrs = dict(attrs)
                 self.allowed_attributes_here = [x for x in
-                                                self.allowed_attributes[tag] if x in attrs
+                                                self.allowed_attributes[tag]
+                                                if x in attrs
                                                 and len(attrs[x]) > 0]
                 for attribute in self.allowed_attributes_here:
                     if attribute in ['href', 'src', 'background']:
@@ -118,7 +123,8 @@ class XssCleaner(HTMLParser):
                 bt += ' /'
             bt += '>'
             self.result += bt
-            if tag not in self.requires_no_close: self.open_tags.insert(0, tag)
+            if tag not in self.requires_no_close:
+                self.open_tags.insert(0, tag)
 
     def handle_endtag(self, tag):
         bracketed = '</%s>' % tag
@@ -208,5 +214,7 @@ def sanitize(text, permitted_tags=[
         escape=True):
     if not isinstance(text, str):
         return str(text)
-    return XssCleaner(permitted_tags=permitted_tags,
-                      allowed_attributes=allowed_attributes).strip(text, escape)
+    result = XssCleaner(permitted_tags=permitted_tags,
+                        allowed_attributes=allowed_attributes)
+    result = result.strip(text, escape)
+    return result

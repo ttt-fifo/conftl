@@ -11,23 +11,11 @@ Cross-site scripting (XSS) defense
 """
 
 from xml.sax.saxutils import quoteattr
-from html import escape
 from html.parser import HTMLParser
 from urllib import parse as urlparse
 
 __all__ = ['sanitize']
 
-
-def xmlescape(text, quote=True, colon=True):
-    if not isinstance(text, str):
-        text = str(text)
-    data = escape(text, quote)
-    if quote:
-        data = data.replace("'", "&#x27;")
-        data = data.replace('"', "&quot;")
-    if colon:
-        data = data.replace(':', '&#58;')
-    return data
 
 class XssCleaner(HTMLParser):
 

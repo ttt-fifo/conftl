@@ -10,28 +10,16 @@ Cross-site scripting (XSS) defense
 -----------------------------------
 """
 
-import sys
 from xml.sax.saxutils import quoteattr
+from html import escape
+from html.parser import HTMLParser
+from urllib import parse as urlparse
 
 __all__ = ['sanitize']
 
-PY2 = sys.version_info[0] == 2
-
-if PY2:
-    from cgi import escape
-    from HTMLParser import HTMLParser
-    import urlparse
-    from htmlentitydefs import entitydefs, name2codepoint
-    basestring = basestring    
-else:
-    from html import escape
-    from html.parser import HTMLParser
-    from urllib import parse as urlparse
-    from html.entities import entitydefs, name2codepoint
-    basestring = str
 
 def xmlescape(text, quote=True, colon=True):
-    if not isinstance(text, basestring):
+    if not isinstance(text, str):
         text = str(text)
     data = escape(text, quote)
     if quote:
@@ -230,7 +218,7 @@ def sanitize(text, permitted_tags=[
         'td': ['colspan'],
     },
         escape=True):
-    if not isinstance(text, basestring):
+    if not isinstance(text, str):
         return str(text)
     return XssCleaner(permitted_tags=permitted_tags,
                       allowed_attributes=allowed_attributes).strip(text, escape)

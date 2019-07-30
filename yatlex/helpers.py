@@ -1,14 +1,9 @@
 import cgi
 from . import sanitizer
-from . sanitizer import xmlescape, PY2
+from .xmlescape import xmlescape
 
-try:
-    # python 2
-    import copy_reg
-except ImportError:
-    # python 3
-    import copyreg as copy_reg
-    str, unicode = bytes, str
+import copyreg as copy_reg
+str, unicode = bytes, str
 
 __all__ = ['A', 'BEAUTIFY', 'BODY', 'CAT', 'CODE', 'DIV', 'EM', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HEAD', 'HTML', 'IMG', 'INPUT', 'LABEL', 'LI', 'METATAG', 'OL', 'OPTION', 'P', 'PRE', 'SELECT', 'SPAN', 'STRONG', 'TABLE', 'TAG', 'TAGGER', 'TBODY', 'TD', 'TEXTAREA', 'TH', 'THAED', 'TR', 'UL', 'XML', 'xmlescape', 'I', 'META', 'LINK', 'TITLE']
 
@@ -39,9 +34,9 @@ class TAGGER(object):
 
     def xml(self):
         name = self.name
-        a = ' '.join('%s="%s"' % 
+        a = ' '.join('%s="%s"' %
                      (_vk(k[1:]), _vk(k[1:]) if v is True else xmlescape(unicode(v)))
-                     for k,v in self.attributes.items() 
+                     for k,v in self.attributes.items()
                      if k.startswith('_') and not (v is False or v is None))
         if a:
             a = ' '+a
@@ -51,7 +46,7 @@ class TAGGER(object):
             b = ''.join(s.xml() if isinstance(s,TAGGER) else xmlescape(unicode(s))
                         for s in self.children)
             return '<%s%s>%s</%s>' %(name, a, b, name)
-    
+
     def __unicode__(self):
         return self.xml()
 
@@ -72,7 +67,7 @@ class TAGGER(object):
 
     def insert(self, i, value):
         self.children.insert(i,value)
-            
+
     def append(self, value):
         self.children.append(value)
 
@@ -94,7 +89,7 @@ class METATAG(object):
     @classmethod
     def _add_tag(cls, name):
         cls.__all_tags__.add(name)
- 
+
     def __getattr__(self, name):
         return self[name]
 
@@ -190,8 +185,6 @@ class XML(TAGGER):
 
         if sanitize:
             text = sanitizer.sanitize(text, permitted_tags, allowed_attributes)
-        if PY2 and isinstance(text, unicode):
-            text = text.encode('utf8', 'xmlcharrefreplace')
         self.text = unicode(text)
 
     def xml(self):

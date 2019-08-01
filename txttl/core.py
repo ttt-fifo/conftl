@@ -8,8 +8,6 @@
 
 import os
 import re
-from .xmlescape import xmlescape
-
 from io import StringIO
 
 
@@ -817,21 +815,6 @@ def parse_template(filename,
 
 
 class DummyResponse():
-    def __init__(self):
-        self.body = StringIO()
-
-    def write(self, data, escape=True):
-        if not escape:
-            data = str(data)
-        elif hasattr(data, 'xml') and callable(data.xml):
-            data = data.xml()
-        else:
-            data = str(data)
-            data = xmlescape(data)
-        self.body.write(str(data))
-
-
-class DummyResponseNOESCAPE():
     """
     The same class as DummyResponse, but never
     escapes XML
@@ -839,7 +822,7 @@ class DummyResponseNOESCAPE():
     def __init__(self):
         self.body = StringIO()
 
-    def write(self, data, escape=True):
+    def write(self, data, escape=None):
         self.body.write(str(data))
 
 
@@ -870,8 +853,7 @@ def render(content=None,
            delimiters='{{ }}',
            writer='response.write',
            reader=None,
-           xmlescape=True,
-           sanitizeeol=False
+           sanitizeeol=True
            ):
     """
     Generic render function
@@ -885,7 +867,6 @@ def render(content=None,
         lexers: custom lexers to use
         delimiters: opening and closing tags
         writer: where to inject the resulting stream
-        xmlescape: do we need XML escape feature? True or False, default True
         sanitizeeol: do we need sanitize EOL feature? True or False,
                      default True
     """
@@ -910,10 +891,7 @@ def render(content=None,
             delimiters = context['response'].delimiters
 
     # Working standalone. Build a mock Response object.
-    if xmlescape:
-        Response = DummyResponse
-    else:
-        Response = DummyResponseNOESCAPE
+    Response = DummyResponse
 
     # --- Sanitize EOL feature ---
     # for using yatl with non-html files

@@ -847,6 +847,7 @@ def repl(m):
 def render(content=None,
            stream=None,
            filename=None,
+           outfilename=None,
            path=None,
            context=None,
            lexers=None,
@@ -862,13 +863,13 @@ def render(content=None,
         content: default content
         stream: file-like obj to read template from
         filename: where to find template
+        outfilename: file where to save output
         path: base path for templates
         context: env
         lexers: custom lexers to use
         delimiters: opening and closing tags
         writer: where to inject the resulting stream
-        sanitizeeol: do we need sanitize EOL feature? True or False,
-                     default True
+    Returns:
     """
 
     # If we don't have anything to render, why bother?
@@ -893,24 +894,32 @@ def render(content=None,
     # Working standalone. Build a mock Response object.
     Response = DummyResponse
 
+    if content is None:
+        if stream is not None:
+            content = stream.read()
+        elif filename is not None:
+            content = reader(filename)
+        else:
+            content = '(no template found)'
+
+
     # --- Sanitize EOL feature ---
     # for using yatl with non-html files
     # (for example text configuration files)
 
-    if sanitizeeol:
-        # we need to work with unicode string (py3)
-        if not isinstance(content, str):
-            content = content.decode()
+    # we need to work with unicode string (py3)
+    if not isinstance(content, str):
+        content = content.decode()
 
-        # construct the regexp to find one block
-        # which starts with delimiter and ends with delimiter
-        regexp_block = delimiters[0] + \
-            '(?P<block_content>.+)' + \
-            delimiters[1] + '?' + \
-            '\\n{0,1}'
-        # substitute all regexp found
-        # note: repl is a helper function
-        content = re.sub(regexp_block, repl, content)
+    # construct the regexp to find one block
+    # which starts with delimiter and ends with delimiter
+    regexp_block = delimiters[0] + \
+        '(?P<block_content>.+)' + \
+        delimiters[1] + '?' + \
+        '\\n{0,1}'
+    # substitute all regexp found
+    # note: repl is a helper function
+    content = re.sub(regexp_block, repl, content)
     # --- end Sanitize EOL feature ---
 
     if isinstance(content, str):
@@ -923,14 +932,6 @@ def render(content=None,
     else:
         old_response_body = None
         context['response'] = Response()
-
-    if content is None:
-        if stream is not None:
-            content = stream.read()
-        elif filename is not None:
-            content = reader(filename)
-        else:
-            content = '(no template found)'
 
     # Execute the template.
     code = str(TemplateParser(text=content,
@@ -951,4 +952,9 @@ def render(content=None,
     text = context['response'].body.getvalue()
     if old_response_body is not None:
         context['response'].body = old_response_body
+
+    # Save to file if outfilename given
+    with open(outfilename, 'w') as f:
+        f.write(text)
+
     return text

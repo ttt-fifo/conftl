@@ -1,4 +1,5 @@
-# yatl-extended
-Yet Another Templating Language Extended
+# txttl
+
+Text Templating Language
 
 TODO

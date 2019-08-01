@@ -13,7 +13,7 @@ Cross-site scripting (XSS) defense
 from xml.sax.saxutils import quoteattr
 from html.parser import HTMLParser
 from urllib import parse as urlparse
-from htmlentitydefs import entitydefs
+from html.entities import entitydefs
 from .xmlescape import xmlescape
 
 __all__ = ['sanitize']

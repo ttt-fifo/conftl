@@ -870,8 +870,8 @@ def render(content=None,
            delimiters='{{ }}',
            writer='response.write',
            reader=None,
-           xmlescape=False,
-           sanitizeeol=True
+           xmlescape=True,
+           sanitizeeol=False
            ):
     """
     Generic render function
@@ -885,7 +885,7 @@ def render(content=None,
         lexers: custom lexers to use
         delimiters: opening and closing tags
         writer: where to inject the resulting stream
-        xmlescape: do we need XML escape feature? True or False, default False
+        xmlescape: do we need XML escape feature? True or False, default True
         sanitizeeol: do we need sanitize EOL feature? True or False,
                      default True
     """
@@ -910,10 +910,10 @@ def render(content=None,
             delimiters = context['response'].delimiters
 
     # Working standalone. Build a mock Response object.
-    if not xmlescape:
-        Response = DummyResponseNOESCAPE
-    else:
+    if xmlescape:
         Response = DummyResponse
+    else:
+        Response = DummyResponseNOESCAPE
 
     # --- Sanitize EOL feature ---
     # for using yatl with non-html files

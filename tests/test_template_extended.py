@@ -10,7 +10,8 @@ class TestRender(unittest.TestCase):
         """
         content = "{{=myvar}}"
         context = dict(myvar="<>")
-        self.assertEqual(render(content=content, context=context),
+        self.assertEqual(render(content=content, context=context,
+                                xmlescape=True),
                          "&lt;&gt;")
 
     def test_no_xmlescape(self):
@@ -42,7 +43,8 @@ class TestRender(unittest.TestCase):
 2
 
 """
-        self.assertEqual(render(content=content), expected_result)
+        self.assertEqual(render(content=content, sanitizeeol=False),
+                         expected_result)
 
     def test_sanitizeeol(self):
         """

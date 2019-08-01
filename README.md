@@ -1,5 +1,3 @@
-# txttl
-
-Text Templating Language
+# Configuration Templating Language
 
 TODO

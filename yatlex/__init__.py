@@ -9,7 +9,7 @@ import importlib.resources
 #     - As you would normally import your modules, functions, classes, etc.
 #     - But you should end every import with '... as somename'
 IMPORTS = """
-from .template import render
+from .core import render
 from .helpers import A as A
 from .helpers import BEAUTIFY as BEAUTIFY
 from .helpers import BODY as BODY

@@ -12,7 +12,7 @@ class TestCore(unittest.TestCase):
         self.assertEqual(delimiters.end, tuple('}}'))
 
     def testPythonBlock(self):
-        block = PythonBlock(Delimiters("{{ }}"))
+        block = PythonBlock(0, Delimiters("{{ }}"))
         block += '{{pass}}'
         self.assertEqual(str(block), '{{pass}}')
 

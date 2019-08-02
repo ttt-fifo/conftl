@@ -20,18 +20,6 @@ class PythonBlock:
         return ''.join(self.buf)
 
 
-class TextBlock:
-    def __init__(self):
-        self.buf = deque()
-
-    def __iadd__(self, other):
-        [self.buf.append(c) for c in other]
-        return self
-
-    def __str__(self):
-        return ''.join(self.buf)
-
-
 REGIME_UNKNOWN = 0
 REGIME_PYTHON = 1
 REGIME_PYTHON_END = 2
@@ -65,80 +53,73 @@ class Template:
 
         regime = REGIME_UNKNOWN
         buf = deque()
-        block = None
+        python_block = None
         while True:
             c = instream.read(1)
             if not c:
                 break
-            regime, block, buf = method_map[regime](c, block, buf)
+            regime, python_block, buf = \
+                method_map[regime](c, python_block, buf)
 
-    def regime_unknown(self, c, block, buf):
+    def regime_unknown(self, c, python_block, buf):
         if c == self.delimiters.start[0]:
+            python_block = PythonBlock(self.delimiters)
+            python_block += c
             regime = REGIME_PYTHON
-            block = PythonBlock(self.delimiters)
-            block += c
-            buf.clear()
         else:
+            self.outstream.write(c)
             regime = REGIME_TEXT
-            block = TextBlock()
-            block += c
-            buf.clear()
-        return regime, block, buf
+        return regime, python_block, buf
 
-    def regime_python(self, c, block, buf):
+    def regime_python(self, c, python_block, buf):
         if c == self.delimiters.end[0]:
-            regime = REGIME_PYTHON_END
-            buf.append(c)
-        else:
-            regime = REGIME_PYTHON
-            buf.append(c)
-            block += buf
             buf.clear()
-        return regime, block, buf
+            buf.append(c)
+            regime = REGIME_PYTHON_END
+        else:
+            python_block += c
+            regime = REGIME_PYTHON
+        return regime, python_block, buf
 
-    def regime_python_end(self, c, block, buf):
+    def regime_python_end(self, c, python_block, buf):
         if c in self.delimiters.end:
             if c == self.delimiters.end[-1]:
+                python_block += buf
+                python_block += c
+                self.outstream.write(str(python_block))
+                python_block = None
                 regime = REGIME_TEXT
-                buf.append(c)
-                block += buf
-                self.outstream.write(str(block))
-                block = TextBlock()
-                buf.clear()
             else:
-                regime = REGIME_PYTHON_END
                 buf.append(c)
+                regime = REGIME_PYTHON_END
         else:
+            python_block += buf
+            python_block += c
             regime = REGIME_PYTHON
-            buf.append(c)
-            block += buf
-            buf.clear()
-        return regime, block, buf
+        return regime, python_block, buf
 
-    def regime_text(self, c, block, buf):
+    def regime_text(self, c, python_block, buf):
         if c == self.delimiters.start[0]:
+            buf.clear()
+            buf.append(c)
             regime = REGIME_TEXT_END
-            buf = deque(c)
         else:
+            self.outstream.write(c)
             regime = REGIME_TEXT
-            block += c
-        return regime, block, buf
+        return regime, python_block, buf
 
-    def regime_text_end(self, c, block, buf):
+    def regime_text_end(self, c, python_block, buf):
         if c in self.delimiters.start:
             if c == self.delimiters.start[-1]:
+                python_block = PythonBlock(self.delimiters)
+                python_block += buf
+                python_block += c
                 regime = REGIME_PYTHON
-                buf.append(c)
-                self.outstream.write(str(block))
-                block = PythonBlock(self.delimiters)
-                block += buf
-                buf.clear()
             else:
-                regime = REGIME_TEXT_END
                 buf.append(c)
+                regime = REGIME_TEXT_END
         else:
+            self.outstream.write(''.join(buf))
+            self.outstream.write(c)
             regime = REGIME_TEXT
-            buf.append(c)
-            block += buf
-            buf.clear()
-        return regime, block, buf
+        return regime, python_block, buf

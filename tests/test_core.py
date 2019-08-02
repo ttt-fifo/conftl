@@ -2,7 +2,6 @@
 import unittest
 from conftl.core import Delimiters
 from conftl.core import PythonBlock
-from conftl.core import TextBlock
 
 
 class TestCore(unittest.TestCase):
@@ -16,12 +15,6 @@ class TestCore(unittest.TestCase):
         block = PythonBlock(Delimiters("{{ }}"))
         block += '{{pass}}'
         self.assertEqual(str(block), '{{pass}}')
-
-    def testTextBlock(self):
-        block = TextBlock()
-        block += 'test'
-        self.assertEqual(str(block), 'test')
-
 
 
 if __name__ == '__main__':

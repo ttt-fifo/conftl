@@ -1,0 +1,19 @@
+{{
+# Enter your configurations here --------
+interface = 'eth0'
+protocol = 'tcp'
+dports = [22, 80, 8080, 443]
+# End of your configurations ------------
+}}
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT DROP [0:0]
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+{{for dport in dports:}}
+-A INPUT -i {{=interface}} -p {{=protocol}} --dport {{=dport}} -m state --state NEW,ESTABLISHED -j ACCEPT
+{{pass}}
+-A INPUT -i lo -j ACCEPT
+-A INPUT -j DROP
+-A FORWARD -j DROP
+-A OUTPUT -j ACCEPT

@@ -32,6 +32,21 @@ class TextBlock:
         return ''.join(self.buf)
 
 
+REGIME_UNKNOWN = 0
+REGIME_PYTHON = 1
+REGIME_PYTHON_END = 2
+REGIME_TEXT = 3
+REGIME_TEXT_END = 4
+
+# textual data textual data {{=myvar}} anoter text continues
+# ^                         ^ ^     ^ ^
+# |                         | |     | |
+# |                         | |     | this is REGIME_TEXT
+# |                         | |     this is REGIME_PYTHON_END
+# |                         | this is REGIME_PYTHON
+# this is REGIME_TEXT       this is REGIME_TEXT_END
+
+
 class Template:
 
     def __init__(self, instream, outstream, delimiters=None):
@@ -42,13 +57,13 @@ class Template:
 
         self.outstream = outstream
 
-        method_map = {'unknown': self.regime_unknown,
-                      'python': self.regime_python,
-                      'python_end': self.regime_python_end,
-                      'text': self.regime_text,
-                      'text_end': self.regime_text_end}
+        method_map = {REGIME_UNKNOWN: self.regime_unknown,
+                      REGIME_PYTHON: self.regime_python,
+                      REGIME_PYTHON_END: self.regime_python_end,
+                      REGIME_TEXT: self.regime_text,
+                      REGIME_TEXT_END: self.regime_text_end}
 
-        regime = 'unknown'
+        regime = REGIME_UNKNOWN
         buf = deque()
         block = None
         while True:
@@ -59,12 +74,12 @@ class Template:
 
     def regime_unknown(self, c, block, buf):
         if c == self.delimiters.start[0]:
-            regime = 'python'
+            regime = REGIME_PYTHON
             block = PythonBlock(self.delimiters)
             block += c
             buf.clear()
         else:
-            regime = 'text'
+            regime = REGIME_TEXT
             block = TextBlock()
             block += c
             buf.clear()
@@ -72,10 +87,10 @@ class Template:
 
     def regime_python(self, c, block, buf):
         if c == self.delimiters.end[0]:
-            regime = 'python_end'
+            regime = REGIME_PYTHON_END
             buf.append(c)
         else:
-            regime = 'python'
+            regime = REGIME_PYTHON
             buf.append(c)
             block += buf
             buf.clear()
@@ -84,17 +99,17 @@ class Template:
     def regime_python_end(self, c, block, buf):
         if c in self.delimiters.end:
             if c == self.delimiters.end[-1]:
-                regime = 'text'
+                regime = REGIME_TEXT
                 buf.append(c)
                 block += buf
                 self.outstream.write(str(block))
                 block = TextBlock()
                 buf.clear()
             else:
-                regime = 'python_end'
+                regime = REGIME_PYTHON_END
                 buf.append(c)
         else:
-            regime = 'python'
+            regime = REGIME_PYTHON
             buf.append(c)
             block += buf
             buf.clear()
@@ -102,27 +117,27 @@ class Template:
 
     def regime_text(self, c, block, buf):
         if c == self.delimiters.start[0]:
-            regime = 'text_end'
+            regime = REGIME_TEXT_END
             buf = deque(c)
         else:
-            regime = 'text'
+            regime = REGIME_TEXT
             block += c
         return regime, block, buf
 
     def regime_text_end(self, c, block, buf):
         if c in self.delimiters.start:
             if c == self.delimiters.start[-1]:
-                regime = 'python'
+                regime = REGIME_PYTHON
                 buf.append(c)
                 self.outstream.write(str(block))
                 block = PythonBlock(self.delimiters)
                 block += buf
                 buf.clear()
             else:
-                regime = 'text_end'
+                regime = REGIME_TEXT_END
                 buf.append(c)
         else:
-            regime = 'text'
+            regime = REGIME_TEXT
             buf.append(c)
             block += buf
             buf.clear()

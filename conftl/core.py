@@ -13,6 +13,9 @@ class PythonBlock:
         self.block += other
         return self
 
+    def __str__(self):
+        return self.block
+
 
 class TextBlock:
     def __init__(self):
@@ -22,14 +25,19 @@ class TextBlock:
         self.block += other
         return self
 
+    def __str__(self):
+        return self.block
+
 
 class Template:
 
-    def __init__(self, stream, delimiters=None):
+    def __init__(self, instream, outstream, delimiters=None):
         if delimiters:
             self.delimiters = Delimiters(delimiters)
         else:
             self.delimiters = Delimiters("{{ }}")
+
+        self.outstream = outstream
 
         method_map = {'unknown': self.regime_unknown,
                       'python': self.regime_python,
@@ -37,12 +45,11 @@ class Template:
                       'text': self.regime_text,
                       'text_end': self.regime_text_end}
 
-        self.blocks = []
         regime = 'unknown'
         buf = ''
         block = None
         while True:
-            c = stream.read(1)
+            c = instream.read(1)
             if not c:
                 break
             regime, block, buf = method_map[regime](c, block, buf)
@@ -77,7 +84,7 @@ class Template:
                 regime = 'text'
                 buf += c
                 block += buf
-                self.blocks.append(block)
+                self.outstream.write(str(block))
                 block = TextBlock()
                 buf = ''
             else:
@@ -104,7 +111,7 @@ class Template:
             if c == self.delimiters.start[-1]:
                 regime = 'python'
                 buf += c
-                self.blocks.append(block)
+                self.outstream.write(str(block))
                 block = PythonBlock()
                 block += buf
                 buf = ''

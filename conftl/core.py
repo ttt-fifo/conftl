@@ -1,3 +1,6 @@
+from collections import deque
+
+
 class Delimiters:
     def __init__(self, string):
         start, end = string.split(' ')
@@ -6,27 +9,27 @@ class Delimiters:
 
 
 class PythonBlock:
-    def __init__(self):
-        self.block = ''
+    def __init__(self, delimiters):
+        self.buf = deque()
 
     def __iadd__(self, other):
-        self.block += other
+        [self.buf.append(c) for c in other]
         return self
 
     def __str__(self):
-        return self.block
+        return ''.join(self.buf)
 
 
 class TextBlock:
     def __init__(self):
-        self.block = ''
+        self.buf = deque()
 
     def __iadd__(self, other):
-        self.block += other
+        [self.buf.append(c) for c in other]
         return self
 
     def __str__(self):
-        return self.block
+        return ''.join(self.buf)
 
 
 class Template:
@@ -57,7 +60,7 @@ class Template:
     def regime_unknown(self, c, block, buf):
         if c == self.delimiters.start[0]:
             regime = 'python'
-            block = PythonBlock()
+            block = PythonBlock(self.delimiters)
             block += c
             buf = ''
         else:
@@ -112,7 +115,7 @@ class Template:
                 regime = 'python'
                 buf += c
                 self.outstream.write(str(block))
-                block = PythonBlock()
+                block = PythonBlock(self.delimiters)
                 block += buf
                 buf = ''
             else:

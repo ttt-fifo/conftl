@@ -1,4 +1,3 @@
-# yatl-extended
-Yet Another Templating Language Extended
+# Configuration Templating Language
 
 TODO

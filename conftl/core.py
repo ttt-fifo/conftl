@@ -49,7 +49,7 @@ class Template:
                       'text_end': self.regime_text_end}
 
         regime = 'unknown'
-        buf = ''
+        buf = deque()
         block = None
         while True:
             c = instream.read(1)
@@ -62,48 +62,48 @@ class Template:
             regime = 'python'
             block = PythonBlock(self.delimiters)
             block += c
-            buf = ''
+            buf.clear()
         else:
             regime = 'text'
             block = TextBlock()
             block += c
-            buf = ''
+            buf.clear()
         return regime, block, buf
 
     def regime_python(self, c, block, buf):
         if c == self.delimiters.end[0]:
             regime = 'python_end'
-            buf = c
+            buf.append(c)
         else:
             regime = 'python'
-            buf += c
+            buf.append(c)
             block += buf
-            buf = ''
+            buf.clear()
         return regime, block, buf
 
     def regime_python_end(self, c, block, buf):
         if c in self.delimiters.end:
             if c == self.delimiters.end[-1]:
                 regime = 'text'
-                buf += c
+                buf.append(c)
                 block += buf
                 self.outstream.write(str(block))
                 block = TextBlock()
-                buf = ''
+                buf.clear()
             else:
                 regime = 'python_end'
-                buf += c
+                buf.append(c)
         else:
             regime = 'python'
-            buf += c
+            buf.append(c)
             block += buf
-            buf = ''
+            buf.clear()
         return regime, block, buf
 
     def regime_text(self, c, block, buf):
         if c == self.delimiters.start[0]:
             regime = 'text_end'
-            buf = c
+            buf = deque(c)
         else:
             regime = 'text'
             block += c
@@ -113,17 +113,17 @@ class Template:
         if c in self.delimiters.start:
             if c == self.delimiters.start[-1]:
                 regime = 'python'
-                buf += c
+                buf.append(c)
                 self.outstream.write(str(block))
                 block = PythonBlock(self.delimiters)
                 block += buf
-                buf = ''
+                buf.clear()
             else:
                 regime = 'text_end'
-                buf += c
+                buf.append(c)
         else:
             regime = 'text'
-            buf += c
+            buf.append(c)
             block += buf
-            buf = ''
+            buf.clear()
         return regime, block, buf

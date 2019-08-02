@@ -117,4 +117,3 @@ class Template:
             block += buf
             buf = ''
         return regime, block, buf
-

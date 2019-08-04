@@ -1,6 +1,7 @@
 """
 See docs/render_concepts.txt
 """
+# TODO: human readable exceptions in template
 
 
 class Delimiters:
@@ -16,8 +17,6 @@ class OutcodeText:
         self.outstream = outstream
 
     def __iadd__(self, other):
-        if other == '':
-            return self
         self.outstream.write(other)
         return self
 
@@ -82,10 +81,6 @@ class InCode:
         pass
 
     def txtend(self):
-        if self.tagtype in ['codeblock', 'codeblockend']:
-            self.buf = self.buf.lstrip('\n')
-        if self.buf == "":
-            return
         self.buf = self.buf.replace("\n", "\\n")
         self.buf = f'_outstream.write("{self.buf}")'
         self.indentbuf()
@@ -133,8 +128,8 @@ class Render:
         return True
 
     def outcode_text(self):
-        self.out_text += self.buf
-        self.buf = ''
+        # self.out_text += self.buf
+        # self.buf = ''
 
         while True:
             if not self.getch(1):
@@ -160,6 +155,7 @@ class Render:
 
         while True:
             if not self.getch(1):
+                # TODO this to go in finally
                 self.in_code += self.buf
                 self.in_code.tagend()
                 self.buf = ''
@@ -171,6 +167,9 @@ class Render:
                         self.in_code += self.buf
                         self.in_code.tagend()
                         self.buf = ''
+                        if self.in_code.tagtype != 'variable':
+                            if not self.removeeol():
+                                return 'end', 'end'
                         if self.in_code.indent == 0:
                             return 'outcode', 'text'
                         else:
@@ -184,8 +183,8 @@ class Render:
 
     def incode_text(self):
         self.in_code.txtstart()
-        self.in_code += self.buf
-        self.buf = ''
+        # self.in_code += self.buf
+        # self.buf = ''
 
         while True:
             if not self.getch(1):
@@ -205,3 +204,12 @@ class Render:
             else:
                 self.in_code += self.buf
                 self.buf = ''
+
+    def removeeol(self):
+        while True:
+            if not self.getch(1):
+                return False
+            if self.buf[0] == '\n':
+                self.buf = ''
+            else:
+                return True

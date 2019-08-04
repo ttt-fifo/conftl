@@ -48,6 +48,99 @@ class TestCore(unittest.TestCase):
         Render(instream, outstream, context=dict(i=100))
         self.assertEqual(outstream.getvalue(), "100")
 
+        tmpl = "{{pass}}\n"
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), "")
+
+        tmpl = """{{for i in range(0, 2):}}
+X
+{{pass}}
+"""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        expected_result = """X
+X
+"""
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_result)
+
+        tmpl = """{{for i in range(0, 2):}}
+{{=i}}
+{{pass}}
+"""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        expected_result = """0
+1
+"""
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_result)
+
+        tmpl = """{{for i in range(0, 2):}}
+{{if i == 1:}}
+{{=i}}
+{{pass}}
+{{pass}}
+"""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        expected_result = """1
+"""
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_result)
+
+        tmpl = """{{for i in range(0, 2):}}
+X:{{=i}}
+{{pass}}
+"""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        expected_result = """X:0
+X:1
+"""
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_result)
+
+        tmpl = """{{
+
+True
+
+False
+
+}}
+"""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        expected_result = ""
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_result)
+
+        tmpl = """{{
+
+def returnone():
+    return 1
+
+}}
+{{for i in range(0, 2):}}
+{{if i == returnone():}}
+X:{{=i}}
+{{pass}}
+{{pass}}
+"""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        expected_result = "X:1\n"
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_result)
+
+        tmpl = "{{raise RuntimeError}}"
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        with self.assertRaises(RuntimeError):
+            Render(instream, outstream)
+
 
 if __name__ == '__main__':
     unittest.main()

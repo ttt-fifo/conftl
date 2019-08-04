@@ -1,194 +1,85 @@
-from collections import deque
+"""
+See docs/render_concepts.txt
+"""
 
 
 class Delimiters:
     def __init__(self, string):
         start, end = string.split(' ')
-        self.start = tuple(start)
-        self.end = tuple(end)
+        self.start = start
+        self.end = end
+        # TODO: error if not '2 symbols, space, 2 symbols'
 
 
-TYPE_UNKNOWN = 0
-
-# {{for i in [1, 2]:}}
-# this is TYPE_START_INDENT
-TYPE_START_INDENT = 1
-
-# {{pass}}
-# this is TYPE_END_INDENT
-TYPE_END_INDENT = -1
-
-# {{import sys
-# import os}}
-# this is TYPE_CODE
-TYPE_CODE = 2
-
-# {{=myvar}}
-# this is TYPE_PRINT
-TYPE_PRINT = 3
-
-
-class PythonBlock:
-    def __init__(self, indent, delimiters):
-        self.indent = indent
-        self.delimiters = delimiters
-        self.typ = TYPE_UNKNOWN
-        self.buf = deque()
+class OutcodeText:
+    def __init__(self, outstream):
+        self.outstream = outstream
 
     def __iadd__(self, other):
-        [self.buf.append(c) for c in other]
+        if other == '':
+            return self
+        self.outstream.write(other)
         return self
 
-    def __str__(self):
-        return ''.join(self.buf)
 
-    def end(self):
-        for _ in range(0, len(self.delimiters.start)):
-            self.buf.popleft()
-
-        for _ in range(0, len(self.delimiters.end)):
-            self.buf.pop()
-
-        while True:
-            if self.buf[0] in [' ', '\n']:
-                self.buf.popleft()
-            else:
-                break
-
-        while True:
-            if self.buf[-1] in [' ', '\n']:
-                self.buf.pop()
-            else:
-                break
-
-        if self.buf[-1] == ':':
-            self.typ = TYPE_START_INDENT
-        elif self.buf[0] == '=':
-            self.typ = TYPE_PRINT
-            self.buf.popleft()
-        elif self.buf == deque('pass'):
-            self.typ = TYPE_END_INDENT
-        else:
-            self.typ = TYPE_CODE
-
-    def evaluate(self):
+class InCode:
+    def __init__(self):
         pass
 
 
-REGIME_UNKNOWN = 0
-REGIME_PYTHON = 1
-REGIME_PYTHON_END = 2
-REGIME_TEXT = 3
-REGIME_TEXT_END = 4
-
-# textual data textual data {{=myvar}} anoter text continues
-# ^                         ^ ^     ^ ^
-# |                         | |     | |
-# |                         | |     | this is REGIME_TEXT
-# |                         | |     this is REGIME_PYTHON_END
-# |                         | this is REGIME_PYTHON
-# this is REGIME_TEXT       this is REGIME_TEXT_END
-
-
-class Template:
-
+class Render:
     def __init__(self, instream, outstream, delimiters=None):
         if delimiters:
             self.delimiters = Delimiters(delimiters)
         else:
             self.delimiters = Delimiters("{{ }}")
-
+        self.instream = instream
         self.outstream = outstream
-        self.indent = 0
+        self.method_map = {'outcode': {'text': self.outcode_text},
+                           'incode': {'tag': self.incode_tag,
+                                      'text': self.incode_text}}
 
-        method_map = {REGIME_UNKNOWN: self.regime_unknown,
-                      REGIME_PYTHON: self.regime_python,
-                      REGIME_PYTHON_END: self.regime_python_end,
-                      REGIME_TEXT: self.regime_text,
-                      REGIME_TEXT_END: self.regime_text_end}
-
-        regime = REGIME_UNKNOWN
-        buf = deque()
-        python_block = None
+        self.buf = ''
+        regime = 'outcode'
+        mode = 'text'
+        self.out_text = OutcodeText(self.outstream)
         while True:
-            c = instream.read(1)
-            if not c:
+            regime, mode = self.method_map[regime][mode]()
+            if regime == 'end':
                 break
-            regime, python_block, buf = \
-                method_map[regime](c, python_block, buf)
 
-    def regime_unknown(self, c, python_block, buf):
-        if c == self.delimiters.start[0]:
-            python_block = PythonBlock(self.indent, self.delimiters)
-            python_block += c
-            regime = REGIME_PYTHON
-        else:
-            self.outstream.write(c)
-            regime = REGIME_TEXT
-        return regime, python_block, buf
+    def getch(self, charcount):
+        for n in range(0, charcount):
+            c = self.instream.read(1)
+            if not c:
+                return False
+            self.buf += c
+        return True
 
-    def regime_python(self, c, python_block, buf):
-        if c == self.delimiters.end[0]:
-            buf.clear()
-            buf.append(c)
-            regime = REGIME_PYTHON_END
-        else:
-            python_block += c
-            regime = REGIME_PYTHON
-        return regime, python_block, buf
+    def outcode_text(self):
+        self.out_text += self.buf
+        self.buf = ''
 
-    def regime_python_end(self, c, python_block, buf):
-        if c in self.delimiters.end:
-            if c == self.delimiters.end[-1]:
-                python_block += buf
-                python_block += c
-                python_block.end()
+        while True:
+            if not self.getch(1):
+                self.out_text += self.buf
+                self.buf = ''
+                return 'end', 'end'
 
-                if python_block.typ == TYPE_START_INDENT:
-                    self.indent += 1
-                    python_block.evaluate()
-                elif python_block.typ == TYPE_END_INDENT:
-                    self.indent -= 1
-                    # self.indent = max(self.indent, 0)
-                elif python_block.typ == TYPE_PRINT:
-                    python_block.evaluate()
-                    self.outstream.write(str(python_block))
-                elif python_block.typ == TYPE_CODE:
-                    python_block.evaluate()
-
-                python_block = None
-                regime = REGIME_TEXT
+            if self.buf[0] == self.delimiters.start[0]:
+                if len(self.buf) >= 2:
+                    if self.buf[0:1] == self.delimiters.start:
+                        del self.buf[0:1]
+                        return 'incode', 'tag'
+                    else:
+                        self.out_text += self.buf
+                        self.buf = ''
             else:
-                buf.append(c)
-                regime = REGIME_PYTHON_END
-        else:
-            python_block += buf
-            python_block += c
-            regime = REGIME_PYTHON
-        return regime, python_block, buf
+                self.out_text += self.buf
+                self.buf = ''
 
-    def regime_text(self, c, python_block, buf):
-        if c == self.delimiters.start[0]:
-            buf.clear()
-            buf.append(c)
-            regime = REGIME_TEXT_END
-        else:
-            self.outstream.write(c)
-            regime = REGIME_TEXT
-        return regime, python_block, buf
+    def incode_tag(self):
+        pass
 
-    def regime_text_end(self, c, python_block, buf):
-        if c in self.delimiters.start:
-            if c == self.delimiters.start[-1]:
-                python_block = PythonBlock(self.indent, self.delimiters)
-                python_block += buf
-                python_block += c
-                regime = REGIME_PYTHON
-            else:
-                buf.append(c)
-                regime = REGIME_TEXT_END
-        else:
-            self.outstream.write(''.join(buf))
-            self.outstream.write(c)
-            regime = REGIME_TEXT
-        return regime, python_block, buf
+    def incode_text(self):
+        pass

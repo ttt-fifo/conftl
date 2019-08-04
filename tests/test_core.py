@@ -1,20 +1,33 @@
 #!/bin/env python3
 import unittest
+from io import StringIO
 from conftl.core import Delimiters
-from conftl.core import PythonBlock
+from conftl.core import OutcodeText
+from conftl.core import InCode
+from conftl.core import Render
 
 
 class TestCore(unittest.TestCase):
 
     def testDelimiters(self):
         delimiters = Delimiters("{{ }}")
-        self.assertEqual(delimiters.start, tuple('{{'))
-        self.assertEqual(delimiters.end, tuple('}}'))
+        self.assertEqual(delimiters.start, '{{')
+        self.assertEqual(delimiters.end, '}}')
 
-    def testPythonBlock(self):
-        block = PythonBlock(0, Delimiters("{{ }}"))
-        block += '{{pass}}'
-        self.assertEqual(str(block), '{{pass}}')
+    def testOutcodeText(self):
+        outstream = StringIO()
+        otxt = OutcodeText(outstream)
+        otxt += "lorem ipsum dolor sim amet"
+        self.assertEqual(outstream.getvalue(), "lorem ipsum dolor sim amet")
+
+    def testInCode(self):
+        InCode
+
+    def testRender(self):
+        instream = StringIO("lorem ipsum dolor sim amet")
+        outstream = StringIO()
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), "lorem ipsum dolor sim amet")
 
 
 if __name__ == '__main__':

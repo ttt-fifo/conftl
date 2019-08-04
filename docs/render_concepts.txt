@@ -1,0 +1,58 @@
+regimes
+=======
+
+outcode
+-----
+lorem ipsum dolor sim amet
+lorem ipsum text text text
+
+incode
+----
+{{import sys
+import os}}
+{{for i in mylist:}}
+Hello, {{=name}}
+{{pass}}
+
+modes
+=====
+
+text
+----
+lorem ipsum dolor sim amet
+lorem ipsum text text text
+
+tag
+---
+{{......}}
+
+combinations (regime_mode)
+=========================
+
+outcode_text
+----------
+lorem ipsum dolor sim amet
+lorem ipsum text text text
+
+incode_text
+---------
+{{for ....:}}
+Hello world!
+{{pass}}
+
+incode_tag
+--------
+{{for ...:}}
+{{=myvar}}
+{{pass}}
+
+method map
+==========
+method_map = {'outcode': {'text': self.outcode_text},
+              'incode': {'text': self.incode_text,
+                         'tag': self.incode_tag}}
+
+indentation
+===========
+positive integer
+

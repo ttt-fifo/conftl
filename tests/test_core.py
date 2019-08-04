@@ -22,17 +22,31 @@ class TestCore(unittest.TestCase):
 
     def testInCode(self):
         outstream = StringIO()
-        incode = InCode(outstream, Delimiters("{{ }}"))
+        incode = InCode(outstream, {}, Delimiters("{{ }}"))
+        incode.tagstart()
         incode += "{{True"
         self.assertEqual(incode.buf, "{{True")
+
         incode += "}}"
+        incode.tagend()
         self.assertEqual(outstream.getvalue(), '')
+
+        incode = InCode(outstream, dict(i=10), Delimiters("{{ }}"))
+        incode.tagstart()
+        incode += '{{=i}}'
+        incode.tagend()
+        self.assertEqual(outstream.getvalue(), '10')
 
     def testRender(self):
         instream = StringIO("lorem ipsum dolor sim amet")
         outstream = StringIO()
         Render(instream, outstream)
         self.assertEqual(outstream.getvalue(), "lorem ipsum dolor sim amet")
+
+        instream = StringIO("{{=i}}")
+        outstream = StringIO()
+        Render(instream, outstream, context=dict(i=100))
+        self.assertEqual(outstream.getvalue(), "100")
 
 
 if __name__ == '__main__':

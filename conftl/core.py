@@ -24,12 +24,14 @@ class OutcodeText:
 
 class InCode:
 
-    def __init__(self, outstream, delimiters):
-        self.outstream = outstream
+    def __init__(self, outstream, context, delimiters):
+        self.context = context
+        self.context['_outstream'] = outstream
         self.delimiters = delimiters
         self.buf = ''
         self.execbuf = ''
         self.indent = 0
+        self.tagtype = 'unknown'
 
     def __iadd__(self, other):
         if other == '':
@@ -38,30 +40,33 @@ class InCode:
         return self
 
     def tagstart(self):
-        pass
+        self.tagtype = 'unknown'
 
     def tagend(self):
         self.tagstrip()
 
         if self.buf.startswith('='):
             self.buf = self.buf.lstrip('=')
-            print(self.buf)
-            self.buf = f'_outstream.write({self.buf})'
+            self.buf = f'_outstream.write(str({self.buf}))'
             self.indentbuf()
-            self.execbuf += '\n' + self.buf + '\n'
+            self.execbuf += self.buf + '\n'
+            self.tagtype = 'variable'
         elif self.buf.endswith(':'):
             self.indentbuf()
-            self.execbuf += '\n' + self.buf + '\n'
+            self.execbuf += self.buf + '\n'
             self.indent += 1
+            self.tagtype = 'codeblock'
         elif self.buf == 'pass':
             self.indent = max(0, self.indent - 1)
+            self.tagtype = 'codeblockend'
         else:
             self.indentbuf()
-            self.execbuf += '\n' + self.buf + '\n'
+            self.execbuf += self.buf + '\n'
+            self.tagtype = 'code'
         self.buf = ''
 
         if self.indent == 0:
-            exec(self.execbuf, {})
+            exec(self.execbuf, self.context)
             self.execbuf = ''
 
     def tagstrip(self):
@@ -70,28 +75,50 @@ class InCode:
 
     def indentbuf(self):
         indentstr = ' ' * self.indent * 4
-        self.buf = self.buf + indentstr
+        self.buf = indentstr + self.buf
         # TODO:may end with \r\n
-        self.buf.replace('\n', '\n' + indentstr)
+
+    def txtstart(self):
+        pass
+
+    def txtend(self):
+        if self.tagtype in ['codeblock', 'codeblockend']:
+            self.buf = self.buf.lstrip('\n')
+        if self.buf == "":
+            return
+        self.buf = self.buf.replace("\n", "\\n")
+        self.buf = f'_outstream.write("{self.buf}")'
+        self.indentbuf()
+        self.execbuf += self.buf + '\n'
+        self.buf = ''
+        if self.indent == 0:
+            exec(self.execbuf, self.context)
+            self.execbuf = ''
 
 
 class Render:
-    def __init__(self, instream, outstream, delimiters=None):
+    def __init__(self, instream, outstream, context=None, delimiters=None):
+        if context:
+            self.context = context
+        else:
+            self.context = {}
+
         if delimiters:
             self.delimiters = Delimiters(delimiters)
         else:
             self.delimiters = Delimiters("{{ }}")
+
         self.instream = instream
         self.outstream = outstream
+
         self.method_map = {'outcode': {'text': self.outcode_text},
                            'incode': {'tag': self.incode_tag,
                                       'text': self.incode_text}}
-
         self.buf = ''
         regime = 'outcode'
         mode = 'text'
         self.out_text = OutcodeText(self.outstream)
-        self.in_code = InCode(self.outstream, self.delimiters)
+        self.in_code = InCode(self.outstream, self.context, self.delimiters)
         while True:
             regime, mode = self.method_map[regime][mode]()
             if regime == 'end':
@@ -140,12 +167,14 @@ class Render:
 
             if self.buf[0] == self.delimiters.end[0]:
                 if len(self.buf) >= 2:
-                    if self.buf[0:1] == self.delimiters.end:
+                    if self.buf[0:2] == self.delimiters.end:
                         self.in_code += self.buf
                         self.in_code.tagend()
                         self.buf = ''
-                        return 'end'
-                        # TODO
+                        if self.in_code.indent == 0:
+                            return 'outcode', 'text'
+                        else:
+                            return 'incode', 'text'
                     else:
                         self.in_code += self.buf
                         self.buf = ''
@@ -154,4 +183,25 @@ class Render:
                 self.buf = ''
 
     def incode_text(self):
-        pass
+        self.in_code.txtstart()
+        self.in_code += self.buf
+        self.buf = ''
+
+        while True:
+            if not self.getch(1):
+                self.in_code += self.buf
+                self.in_code.txtend()
+                self.buf = ''
+                return 'end', 'end'
+
+            if self.buf[0] == self.delimiters.start[0]:
+                if len(self.buf) >= 2:
+                    if self.buf[0:2] == self.delimiters.start:
+                        self.in_code.txtend()
+                        return 'incode', 'tag'
+                    else:
+                        self.in_code += self.buf
+                        self.buf = ''
+            else:
+                self.in_code += self.buf
+                self.buf = ''

@@ -21,7 +21,12 @@ class TestCore(unittest.TestCase):
         self.assertEqual(outstream.getvalue(), "lorem ipsum dolor sim amet")
 
     def testInCode(self):
-        InCode
+        outstream = StringIO()
+        incode = InCode(outstream, Delimiters("{{ }}"))
+        incode += "{{True"
+        self.assertEqual(incode.buf, "{{True")
+        incode += "}}"
+        self.assertEqual(outstream.getvalue(), '')
 
     def testRender(self):
         instream = StringIO("lorem ipsum dolor sim amet")

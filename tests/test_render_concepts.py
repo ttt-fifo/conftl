@@ -4,34 +4,34 @@ from io import StringIO
 from conftl.core import Render
 
 
-# class TestRenderConcepts(unittest.TestCase):
-#
-#     def testTag(self):
-#         tmpl = "{{True}}"
-#         expected_output = ""
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream)
-#         self.assertEqual(outstream.getvalue(), expected_output)
-#
-#     def testUnindent(self):
-#         tmpl = "{{pass}}"
-#         expected_output = ""
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream)
-#         self.assertEqual(outstream.getvalue(), expected_output)
-#
-#     def testUnindentNewLine(self):
-#         tmpl = """{{pass}}
-# """
-#         context = dict(i=100)
-#         expected_output = ""
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream, context=context)
-#         self.assertEqual(outstream.getvalue(), expected_output)
-#
+class TestRenderConcepts(unittest.TestCase):
+
+    def testTag(self):
+        tmpl = "{{True}}"
+        expected_output = ""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
+    def testUnindent(self):
+        tmpl = "{{pass}}"
+        expected_output = ""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
+    def testUnindentNewLine(self):
+        tmpl = """{{pass}}
+"""
+        context = dict(i=100)
+        expected_output = ""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream, context=context)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
 #     def testIndentation(self):
 #         tmpl = """{{if True:}}
 # {{True}}
@@ -212,7 +212,7 @@ from conftl.core import Render
 #         outstream = StringIO()
 #         with self.assertRaises(RuntimeError):
 #             Render(instream, outstream)
-#
-#
-# if __name__ == '__main__':
-#     unittest.main()
+
+
+if __name__ == '__main__':
+    unittest.main()

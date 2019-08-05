@@ -18,17 +18,21 @@ class Tag:
         self.data = self.data[2:-2]
         self.indent = int(indent)
         self.indent_delta = 0
+        self.rm_trail_eol = False
         if self.data.startswith('='):
             self.data = self.data[1:]
             self.typ = 'variable'
         elif self.data.endswith(':'):
             self.indent_delta = 1
+            self.rm_trail_eol = True
             self.typ = 'code'
         elif self.data == 'pass':
             self.data = ''
             self.indent_delta = -1
+            self.rm_trail_eol = True
             self.typ = 'unindent'
         else:
+            self.rm_trail_eol = True
             self.typ = 'code'
 
     def execstr(self):
@@ -51,9 +55,11 @@ class Tag:
 
 
 class Text:
-    def __init__(self, string, indent):
+    def __init__(self, string, indent, rm_first_eol):
         self.data = string
         self.indent = int(indent)
+        if rm_first_eol:
+            self.data = re.sub('^\n{1}', '', self.data)
 
     def execstr(self):
         return ' ' * 4 * self.indent + \
@@ -68,6 +74,8 @@ class Render:
         else:
             self.context = {}
 
+        self.context['_outstream'] = outstream
+
         if delimiters:
             self.delimiters = delimiters
         else:
@@ -76,18 +84,25 @@ class Render:
         self.instream = instream
         self.outstream = outstream
 
+        self.buf = []
+        for val in re.split(r"({{.*?}})", instream.read()):
+            if val != '':
+                self.buf.append(val)
+
         self.indent = 0
-        self.buf = re.split(r"({{.*?}})", instream.read())
+        self.rm_trail_eol = False
         for i, val in enumerate(self.buf):
             self.buf[i] = self.objectify(self.buf[i])
 
         self.execstr = ''.join([o.execstr() for o in self.buf])
+        exec(self.execstr, self.context)
 
     def objectify(self, element):
-        m = re.match(r"{{.*}}", element)
+        m = re.match(r"({{.*}})", element)
         if m:
             obj = Tag(element, self.indent)
             self.indent = max(0, self.indent + obj.indent_delta)
+            self.rm_trail_eol = bool(obj.rm_trail_eol)
             return obj
         else:
-            return Text(element, self.indent)
+            return Text(element, self.indent, self.rm_trail_eol)

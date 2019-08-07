@@ -206,6 +206,14 @@ def one():
         Render(instream, outstream, delimiters="[[ ]]")
         self.assertEqual(outstream.getvalue(), expected_output)
 
+    def testDelimitersThreeChars(self):
+        tmpl = "<<<True>>>"
+        expected_output = ""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream, delimiters="<<< >>>")
+        self.assertEqual(outstream.getvalue(), expected_output)
+
     def testException(self):
         tmpl = "{{raise RuntimeError}}"
         instream = StringIO(tmpl)

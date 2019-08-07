@@ -7,8 +7,13 @@ import re
 class Delimiters:
     def __init__(self, string="{{ }}"):
         start, stop = string.split(' ')
+
         self.start = start
+        self.start_len = len(self.start)
+
         self.stop = stop
+        self.stop_len = len(self.stop)
+
         start_escaped = re.escape(self.start)
         stop_escaped = re.escape(self.stop)
         regex_tag = rf"({start_escaped}[\w\W\n]*?{stop_escaped})"
@@ -17,9 +22,11 @@ class Delimiters:
 
 class Tag:
 
-    def __init__(self, string, indent):
+    def __init__(self, string, indent, delimiters):
         self.data = string
-        self.data = self.data[2:-2]
+        self.delimiters = delimiters
+        self.data = \
+            self.data[self.delimiters.start_len:-self.delimiters.stop_len]
         self.indent = int(indent)
         self.indent_delta = 0
         self.rm_trail_eol = False
@@ -113,7 +120,7 @@ class Render:
     def objectify(self, element):
         m = self.delimiters.re_tag.match(element)
         if m:
-            obj = Tag(element, self.indent)
+            obj = Tag(element, self.indent, self.delimiters)
             self.indent = max(0, self.indent + obj.indent_delta)
             self.rm_trail_eol = bool(obj.rm_trail_eol)
             return obj

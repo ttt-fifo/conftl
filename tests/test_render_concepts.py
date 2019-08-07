@@ -184,20 +184,20 @@ def one():
         Render(instream, outstream)
         self.assertEqual(outstream.getvalue(), expected_output)
 
-#     def testMultilineCodeIndented(self):
-#         tmpl = """{{if True:}}
-# {{
-# def one():
-#     return 1
-# }}
-# {{pass}}
-# {{=one()}}"""
-#         expected_output = "1"
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream)
-#         self.assertEqual(outstream.getvalue(), expected_output)
-#
+    def testMultilineCodeIndented(self):
+        tmpl = """{{if True:}}
+{{
+def one():
+    return 1
+}}
+{{pass}}
+{{=one()}}"""
+        expected_output = "1"
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
 #     def testDelimitersChange(self):
 #         tmpl = "[[True]]"
 #         expected_output = ""

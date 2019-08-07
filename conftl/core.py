@@ -50,7 +50,10 @@ class Tag:
                f'_outstream.write(str({self.data}))' + '\n'
 
     def execstr_code(self):
-        return ' ' * 4 * self.indent + str(self.data) + '\n'
+        result = ''
+        for ln in self.data.split('\n'):
+            result += ' ' * 4 * self.indent + str(ln) + '\n'
+        return result
 
     def execstr_blockstart(self):
         return ' ' * 4 * self.indent + str(self.data) + '\n'
@@ -90,7 +93,8 @@ class Render:
         self.outstream = outstream
 
         self.buf = []
-        for val in re.split(r"({{.*?}})", instream.read()):
+        re_tag = re.compile(r"({{[\w\W\n]*?}})", re.MULTILINE)
+        for val in re_tag.split(instream.read()):
             if val != '':
                 self.buf.append(val)
 
@@ -104,7 +108,9 @@ class Render:
         exec(self.execstr, self.context)
 
     def objectify(self, element):
-        m = re.match(r"({{.*}})", element)
+        re_tag = re.compile(r"({{[\w\W\n]*?}})", re.MULTILINE)
+        # m = re.match(r"({{.*?}})", element)
+        m = re_tag.match(element)
         if m:
             obj = Tag(element, self.indent)
             self.indent = max(0, self.indent + obj.indent_delta)

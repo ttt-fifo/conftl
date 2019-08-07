@@ -81,18 +81,18 @@ texting clearly
         Render(instream, outstream)
         self.assertEqual(outstream.getvalue(), expected_output)
 
-#     def testCodeText(self):
-#         tmpl = """{{for i in range(0, 2):}}
-# X
-# {{pass}}
-# """
-#         expected_output = """X
-# X
-# """
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream)
-#         self.assertEqual(outstream.getvalue(), expected_output)
+    def testCodeText(self):
+        tmpl = """{{for i in range(0, 2):}}
+X
+{{pass}}
+"""
+        expected_output = """X
+X
+"""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_output)
 #
 #     def testVariable(self):
 #         tmpl = "{{=i}}"

@@ -1,215 +1,121 @@
 """
 See docs/render_concepts.txt
 """
-# TODO: human readable exceptions in template
+import re
 
 
 class Delimiters:
-    def __init__(self, string):
-        start, end = string.split(' ')
+    def __init__(self, string="{{ }}"):
+        start, stop = string.split(' ')
         self.start = start
-        self.end = end
-        # TODO: error if not '2 symbols, space, 2 symbols'
+        self.stop = stop
+        start_escaped = re.escape(self.start)
+        stop_escaped = re.escape(self.stop)
+        regex_tag = rf"({start_escaped}[\w\W\n]*?{stop_escaped})"
+        self.re_tag = re.compile(regex_tag, re.MULTILINE)
 
 
-class OutcodeText:
-    def __init__(self, outstream):
-        self.outstream = outstream
+class Tag:
 
-    def __iadd__(self, other):
-        self.outstream.write(other)
-        return self
-
-
-class InCode:
-
-    def __init__(self, outstream, context, delimiters):
-        self.context = context
-        self.context['_outstream'] = outstream
-        self.delimiters = delimiters
-        self.buf = ''
-        self.execbuf = ''
-        self.indent = 0
-        self.tagtype = 'unknown'
-
-    def __iadd__(self, other):
-        if other == '':
-            return self
-        self.buf += other
-        return self
-
-    def tagstart(self):
-        self.tagtype = 'unknown'
-
-    def tagend(self):
-        self.tagstrip()
-
-        if self.buf.startswith('='):
-            self.buf = self.buf.lstrip('=')
-            self.buf = f'_outstream.write(str({self.buf}))'
-            self.indentbuf()
-            self.execbuf += self.buf + '\n'
-            self.tagtype = 'variable'
-        elif self.buf.endswith(':'):
-            self.indentbuf()
-            self.execbuf += self.buf + '\n'
-            self.indent += 1
-            self.tagtype = 'codeblock'
-        elif self.buf == 'pass':
-            self.indent = max(0, self.indent - 1)
-            self.tagtype = 'codeblockend'
+    def __init__(self, string, indent):
+        self.data = string
+        self.data = self.data[2:-2]
+        self.indent = int(indent)
+        self.indent_delta = 0
+        self.rm_trail_eol = False
+        if self.data.startswith('='):
+            self.data = self.data[1:]
+            self.typ = 'variable'
+        elif self.data.endswith(':'):
+            self.indent_delta = 1
+            self.rm_trail_eol = True
+            self.typ = 'blockstart'
+        elif self.data == 'pass':
+            self.data = ''
+            self.indent_delta = -1
+            self.rm_trail_eol = True
+            self.typ = 'blockend'
         else:
-            self.indentbuf()
-            self.execbuf += self.buf + '\n'
-            self.tagtype = 'code'
-        self.buf = ''
+            self.rm_trail_eol = True
+            self.typ = 'code'
 
-        if self.indent == 0:
-            exec(self.execbuf, self.context)
-            self.execbuf = ''
+    def execstr(self):
+        if self.typ == 'variable':
+            return self.execstr_variable()
+        if self.typ == 'code':
+            return self.execstr_code()
+        elif self.typ == 'blockstart':
+            return self.execstr_blockstart()
+        elif self.typ == 'blockend':
+            return self.execstr_blockend()
 
-    def tagstrip(self):
-        self.buf = self.buf[2:-2]
-        # TODO: strip all \n, \r\n, ' ' from both ends
+    def execstr_variable(self):
+        return ' ' * 4 * self.indent + \
+               f'_outstream.write(str({self.data}))' + '\n'
 
-    def indentbuf(self):
-        indentstr = ' ' * self.indent * 4
-        self.buf = indentstr + self.buf
-        # TODO:may end with \r\n
+    def execstr_code(self):
+        result = ''
+        for ln in self.data.split('\n'):
+            result += ' ' * 4 * self.indent + str(ln) + '\n'
+        return result
 
-    def txtstart(self):
-        pass
+    def execstr_blockstart(self):
+        return ' ' * 4 * self.indent + str(self.data) + '\n'
 
-    def txtend(self):
-        self.buf = self.buf.replace("\n", "\\n")
-        self.buf = f'_outstream.write("{self.buf}")'
-        self.indentbuf()
-        self.execbuf += self.buf + '\n'
-        self.buf = ''
-        if self.indent == 0:
-            exec(self.execbuf, self.context)
-            self.execbuf = ''
+    def execstr_blockend(self):
+        return ''
+
+
+class Text:
+    def __init__(self, string, indent, rm_first_eol):
+        self.data = string
+        self.indent = int(indent)
+        if rm_first_eol:
+            self.data = re.sub('^\n{1}', '', self.data)
+
+    def execstr(self):
+        return ' ' * 4 * self.indent + \
+               f'_outstream.write("""{self.data}""")' + '\n'
 
 
 class Render:
+
     def __init__(self, instream, outstream, context=None, delimiters=None):
         if context:
             self.context = context
         else:
             self.context = {}
 
+        self.context['_outstream'] = outstream
+
         if delimiters:
             self.delimiters = Delimiters(delimiters)
         else:
-            self.delimiters = Delimiters("{{ }}")
+            self.delimiters = Delimiters()
 
         self.instream = instream
         self.outstream = outstream
 
-        self.method_map = {'outcode': {'text': self.outcode_text},
-                           'incode': {'tag': self.incode_tag,
-                                      'text': self.incode_text}}
-        self.buf = ''
-        regime = 'outcode'
-        mode = 'text'
-        self.out_text = OutcodeText(self.outstream)
-        self.in_code = InCode(self.outstream, self.context, self.delimiters)
-        while True:
-            regime, mode = self.method_map[regime][mode]()
-            if regime == 'end':
-                break
+        self.buf = []
+        for val in self.delimiters.re_tag.split(instream.read()):
+            if val != '':
+                self.buf.append(val)
 
-    def getch(self, charcount):
-        for n in range(0, charcount):
-            c = self.instream.read(1)
-            if not c:
-                return False
-            self.buf += c
-        return True
+        self.indent = 0
+        self.rm_trail_eol = False
+        for i, val in enumerate(self.buf):
+            self.buf[i] = self.objectify(self.buf[i])
 
-    def outcode_text(self):
-        # self.out_text += self.buf
-        # self.buf = ''
+        self.execstr = ''.join([o.execstr() for o in self.buf])
+        # print(self.execstr)
+        exec(self.execstr, self.context)
 
-        while True:
-            if not self.getch(1):
-                self.out_text += self.buf
-                self.buf = ''
-                return 'end', 'end'
-
-            if self.buf[0] == self.delimiters.start[0]:
-                if len(self.buf) >= 2:
-                    if self.buf[0:2] == self.delimiters.start:
-                        return 'incode', 'tag'
-                    else:
-                        self.out_text += self.buf
-                        self.buf = ''
-            else:
-                self.out_text += self.buf
-                self.buf = ''
-
-    def incode_tag(self):
-        self.in_code.tagstart()
-        self.in_code += self.buf
-        self.buf = ''
-
-        while True:
-            if not self.getch(1):
-                # TODO this to go in finally
-                self.in_code += self.buf
-                self.in_code.tagend()
-                self.buf = ''
-                return 'end', 'end'
-
-            if self.buf[0] == self.delimiters.end[0]:
-                if len(self.buf) >= 2:
-                    if self.buf[0:2] == self.delimiters.end:
-                        self.in_code += self.buf
-                        self.in_code.tagend()
-                        self.buf = ''
-                        if self.in_code.tagtype != 'variable':
-                            if not self.removeeol():
-                                return 'end', 'end'
-                        if self.in_code.indent == 0:
-                            return 'outcode', 'text'
-                        else:
-                            return 'incode', 'text'
-                    else:
-                        self.in_code += self.buf
-                        self.buf = ''
-            else:
-                self.in_code += self.buf
-                self.buf = ''
-
-    def incode_text(self):
-        self.in_code.txtstart()
-        # self.in_code += self.buf
-        # self.buf = ''
-
-        while True:
-            if not self.getch(1):
-                self.in_code += self.buf
-                self.in_code.txtend()
-                self.buf = ''
-                return 'end', 'end'
-
-            if self.buf[0] == self.delimiters.start[0]:
-                if len(self.buf) >= 2:
-                    if self.buf[0:2] == self.delimiters.start:
-                        self.in_code.txtend()
-                        return 'incode', 'tag'
-                    else:
-                        self.in_code += self.buf
-                        self.buf = ''
-            else:
-                self.in_code += self.buf
-                self.buf = ''
-
-    def removeeol(self):
-        while True:
-            if not self.getch(1):
-                return False
-            if self.buf[0] == '\n':
-                self.buf = ''
-            else:
-                return True
+    def objectify(self, element):
+        m = self.delimiters.re_tag.match(element)
+        if m:
+            obj = Tag(element, self.indent)
+            self.indent = max(0, self.indent + obj.indent_delta)
+            self.rm_trail_eol = bool(obj.rm_trail_eol)
+            return obj
+        else:
+            return Text(element, self.indent, self.rm_trail_eol)

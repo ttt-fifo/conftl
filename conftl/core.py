@@ -9,6 +9,10 @@ class Delimiters:
         start, stop = string.split(' ')
         self.start = start
         self.stop = stop
+        start_escaped = re.escape(self.start)
+        stop_escaped = re.escape(self.stop)
+        regex_tag = rf"({start_escaped}[\w\W\n]*?{stop_escaped})"
+        self.re_tag = re.compile(regex_tag, re.MULTILINE)
 
 
 class Tag:
@@ -85,7 +89,7 @@ class Render:
         self.context['_outstream'] = outstream
 
         if delimiters:
-            self.delimiters = delimiters
+            self.delimiters = Delimiters(delimiters)
         else:
             self.delimiters = Delimiters()
 
@@ -93,8 +97,7 @@ class Render:
         self.outstream = outstream
 
         self.buf = []
-        re_tag = re.compile(r"({{[\w\W\n]*?}})", re.MULTILINE)
-        for val in re_tag.split(instream.read()):
+        for val in self.delimiters.re_tag.split(instream.read()):
             if val != '':
                 self.buf.append(val)
 
@@ -108,9 +111,7 @@ class Render:
         exec(self.execstr, self.context)
 
     def objectify(self, element):
-        re_tag = re.compile(r"({{[\w\W\n]*?}})", re.MULTILINE)
-        # m = re.match(r"({{.*?}})", element)
-        m = re_tag.match(element)
+        m = self.delimiters.re_tag.match(element)
         if m:
             obj = Tag(element, self.indent)
             self.indent = max(0, self.indent + obj.indent_delta)

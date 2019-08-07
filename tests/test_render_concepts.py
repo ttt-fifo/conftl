@@ -157,20 +157,20 @@ lorem ipsum {{=i}} texting
         Render(instream, outstream, context=context)
         self.assertEqual(outstream.getvalue(), expected_output)
 
-#     def testTwoIndentations(self):
-#         tmpl = """{{if True:}}
-# {{if True:}}
-# X
-# {{pass}}
-# {{pass}}
-# """
-#         expected_output = """X
-# """
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream)
-#         self.assertEqual(outstream.getvalue(), expected_output)
-#
+    def testTwoIndentations(self):
+        tmpl = """{{if True:}}
+{{if True:}}
+X
+{{pass}}
+{{pass}}
+"""
+        expected_output = """X
+"""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
 #     def testMultilineCode(self):
 #         tmpl = """{{
 # import sys

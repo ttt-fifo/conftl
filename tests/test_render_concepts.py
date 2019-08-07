@@ -93,16 +93,16 @@ X
         outstream = StringIO()
         Render(instream, outstream)
         self.assertEqual(outstream.getvalue(), expected_output)
-#
-#     def testVariable(self):
-#         tmpl = "{{=i}}"
-#         context = dict(i=100)
-#         expected_output = "100"
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream, context=context)
-#         self.assertEqual(outstream.getvalue(), expected_output)
-#
+
+    def testVariable(self):
+        tmpl = "{{=i}}"
+        context = dict(i=100)
+        expected_output = "100"
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream, context=context)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
 #     def testVariableNewLine(self):
 #         tmpl = """{{=i}}
 # """

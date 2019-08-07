@@ -55,19 +55,19 @@ texting clearly
         Render(instream, outstream)
         self.assertEqual(outstream.getvalue(), expected_output)
 
-# #    def testClearTextWithDelimiterStart(self):
-# #        tmpl = """
-# # lorem ipsum dolor sim amet
-# # text lorem {{ ipsum text
-# # clear text clear text
-# # texting clearly
-# # """
-# #        expected_output = tmpl
-# #        instream = StringIO(tmpl)
-# #        outstream = StringIO()
-# #        Render(instream, outstream)
-# #        self.assertEqual(outstream.getvalue(), expected_output)
-#
+    def testClearTextWithDelimiterStart(self):
+        tmpl = """
+lorem ipsum dolor sim amet
+text lorem {{ ipsum text
+clear text clear text
+texting clearly
+"""
+        expected_output = tmpl
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
 # #    def testClearTextWithDelimiterEnd(self):
 # #        tmpl = """
 # # lorem ipsum dolor sim amet

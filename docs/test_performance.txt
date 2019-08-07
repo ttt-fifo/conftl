@@ -1,0 +1,17 @@
+Running test/test_performance.py on the master branch 
+(master branch is not using python regex and no buffering)
+.
+----------------------------------------------------------------------
+Ran 1 test in 12.786s
+
+Running test/test_performance.py on the regex branch
+(regex branch implemented with buffering and using python regex)
+OK
+.
+----------------------------------------------------------------------
+Ran 1 test in 6.585s
+
+OK
+
+
+The decision is to merge regex branch with master - twice more performance.

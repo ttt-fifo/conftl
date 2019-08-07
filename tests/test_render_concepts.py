@@ -114,15 +114,15 @@ X
         Render(instream, outstream, context=context)
         self.assertEqual(outstream.getvalue(), expected_output)
 
-#     def testVariableAndClearText(self):
-#         tmpl = "lorem ipsum {{=i}} text"
-#         context = dict(i=100)
-#         expected_output = "lorem ipsum 100 text"
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream, context=context)
-#         self.assertEqual(outstream.getvalue(), expected_output)
-#
+    def testVariableAndClearText(self):
+        tmpl = "lorem ipsum {{=i}} text"
+        context = dict(i=100)
+        expected_output = "lorem ipsum 100 text"
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream, context=context)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
 #     def testVariableIndented(self):
 #         tmpl = """{{if True:}}
 # {{=i}}{{pass}}"""

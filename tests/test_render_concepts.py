@@ -145,18 +145,18 @@ X
         Render(instream, outstream, context=context)
         self.assertEqual(outstream.getvalue(), expected_output)
 
-#     def testVariableCodeText(self):
-#         tmpl = """{{if True:}}
-# lorem ipsum {{=i}} texting
-# {{pass}}"""
-#         context = dict(i=100)
-#         expected_output = """lorem ipsum 100 texting
-# """
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream, context=context)
-#         self.assertEqual(outstream.getvalue(), expected_output)
-#
+    def testVariableCodeText(self):
+        tmpl = """{{if True:}}
+lorem ipsum {{=i}} texting
+{{pass}}"""
+        context = dict(i=100)
+        expected_output = """lorem ipsum 100 texting
+"""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream, context=context)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
 #     def testTwoIndentations(self):
 #         tmpl = """{{if True:}}
 # {{if True:}}

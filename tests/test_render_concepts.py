@@ -206,12 +206,12 @@ def one():
         Render(instream, outstream, delimiters="[[ ]]")
         self.assertEqual(outstream.getvalue(), expected_output)
 
-#     def testException(self):
-#         tmpl = "{{raise RuntimeError}}"
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         with self.assertRaises(RuntimeError):
-#             Render(instream, outstream)
+    def testException(self):
+        tmpl = "{{raise RuntimeError}}"
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        with self.assertRaises(RuntimeError):
+            Render(instream, outstream)
 
 
 if __name__ == '__main__':

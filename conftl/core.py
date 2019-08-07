@@ -29,21 +29,19 @@ class Tag:
             self.data[self.delimiters.start_len:-self.delimiters.stop_len]
         self.indent = int(indent)
         self.indent_delta = 0
-        self.rm_trail_eol = False
+        self.rm_trail_eol = True
         if self.data.startswith('='):
             self.data = self.data[1:]
             self.typ = 'variable'
+            self.rm_trail_eol = False
         elif self.data.endswith(':'):
             self.indent_delta = 1
-            self.rm_trail_eol = True
             self.typ = 'blockstart'
         elif self.data == 'pass':
             self.data = ''
             self.indent_delta = -1
-            self.rm_trail_eol = True
             self.typ = 'blockend'
         else:
-            self.rm_trail_eol = True
             self.typ = 'code'
 
     def execstr(self):

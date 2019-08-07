@@ -42,19 +42,19 @@ class TestRenderConcepts(unittest.TestCase):
         Render(instream, outstream)
         self.assertEqual(outstream.getvalue(), expected_output)
 
-#     def testClearText(self):
-#         tmpl = """
-# lorem ipsum dolor sim amet
-# text lorem text ipsum text
-# clear text clear text
-# texting clearly
-# """
-#         expected_output = tmpl
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream)
-#         self.assertEqual(outstream.getvalue(), expected_output)
-#
+    def testClearText(self):
+        tmpl = """
+lorem ipsum dolor sim amet
+text lorem text ipsum text
+clear text clear text
+texting clearly
+"""
+        expected_output = tmpl
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
 # #    def testClearTextWithDelimiterStart(self):
 # #        tmpl = """
 # # lorem ipsum dolor sim amet

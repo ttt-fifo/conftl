@@ -32,16 +32,16 @@ class TestRenderConcepts(unittest.TestCase):
         Render(instream, outstream, context=context)
         self.assertEqual(outstream.getvalue(), expected_output)
 
-#     def testIndentation(self):
-#         tmpl = """{{if True:}}
-# {{True}}
-# {{pass}}"""
-#         expected_output = ""
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream)
-#         self.assertEqual(outstream.getvalue(), expected_output)
-#
+    def testIndentation(self):
+        tmpl = """{{if True:}}
+{{True}}
+{{pass}}"""
+        expected_output = ""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
 #     def testClearText(self):
 #         tmpl = """
 # lorem ipsum dolor sim amet

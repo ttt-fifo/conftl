@@ -25,12 +25,12 @@ class Tag:
         elif self.data.endswith(':'):
             self.indent_delta = 1
             self.rm_trail_eol = True
-            self.typ = 'code'
+            self.typ = 'blockstart'
         elif self.data == 'pass':
             self.data = ''
             self.indent_delta = -1
             self.rm_trail_eol = True
-            self.typ = 'unindent'
+            self.typ = 'blockend'
         else:
             self.rm_trail_eol = True
             self.typ = 'code'
@@ -38,19 +38,24 @@ class Tag:
     def execstr(self):
         if self.typ == 'variable':
             return self.execstr_variable()
-        elif self.typ == 'code':
+        if self.typ == 'code':
             return self.execstr_code()
-        elif self.typ == 'unindent':
-            return self.execstr_unindent()
+        elif self.typ == 'blockstart':
+            return self.execstr_blockstart()
+        elif self.typ == 'blockend':
+            return self.execstr_blockend()
 
     def execstr_variable(self):
         return ' ' * 4 * self.indent + \
                f'_outstream.write(str({self.data}))' + '\n'
 
     def execstr_code(self):
-        return ' ' * 4 * self.indent + self.data
+        return ' ' * 4 * self.indent + str(self.data) + '\n'
 
-    def execstr_unindent(self):
+    def execstr_blockstart(self):
+        return ' ' * 4 * self.indent + str(self.data) + '\n'
+
+    def execstr_blockend(self):
         return ''
 
 
@@ -95,6 +100,7 @@ class Render:
             self.buf[i] = self.objectify(self.buf[i])
 
         self.execstr = ''.join([o.execstr() for o in self.buf])
+        # print(self.execstr)
         exec(self.execstr, self.context)
 
     def objectify(self, element):

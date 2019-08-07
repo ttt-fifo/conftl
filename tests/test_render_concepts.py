@@ -123,16 +123,16 @@ X
         Render(instream, outstream, context=context)
         self.assertEqual(outstream.getvalue(), expected_output)
 
-#     def testVariableIndented(self):
-#         tmpl = """{{if True:}}
-# {{=i}}{{pass}}"""
-#         context = dict(i=100)
-#         expected_output = "100"
-#         instream = StringIO(tmpl)
-#         outstream = StringIO()
-#         Render(instream, outstream, context=context)
-#         self.assertEqual(outstream.getvalue(), expected_output)
-#
+    def testVariableIndented(self):
+        tmpl = """{{if True:}}
+{{=i}}{{pass}}"""
+        context = dict(i=100)
+        expected_output = "100"
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream, context=context)
+        self.assertEqual(outstream.getvalue(), expected_output)
+
 #     def testVariableIndentedNewLine(self):
 #         tmpl = """{{if True:}}
 # {{=i}}

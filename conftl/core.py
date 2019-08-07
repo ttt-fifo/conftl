@@ -79,8 +79,11 @@ class Text:
             self.data = re.sub('^\n{1}', '', self.data)
 
     def execstr(self):
-        return ' ' * 4 * self.indent + \
-               f'_outstream.write("""{self.data}""")' + '\n'
+        if self.data:
+            return ' ' * 4 * self.indent + \
+                   f'_outstream.write("""{self.data}""")' + '\n'
+        else:
+            return ''
 
 
 class Render:

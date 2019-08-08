@@ -101,8 +101,6 @@ class Render:
         else:
             self.context = {}
 
-        self.context['_outstream'] = outstream
-
         if delimiters:
             self.delimiters = Delimiters(delimiters)
         else:
@@ -111,20 +109,25 @@ class Render:
         self.instream = instream
         self.outstream = outstream
 
+        self.indent = 0
+        self.rm_trail_eol = False
+
     def __call__(self):
-        self.buf = []
+        self.context['_outstream'] = self.outstream
+
+        buf = []
         for val in self.delimiters.re_tag.split(self.instream.read()):
             if val != '':
-                self.buf.append(val)
+                buf.append(val)
 
         self.indent = 0
         self.rm_trail_eol = False
-        for i, val in enumerate(self.buf):
-            self.buf[i] = self.objectify(self.buf[i])
+        for i, val in enumerate(buf):
+            buf[i] = self.objectify(buf[i])
 
-        self.execstr = ''.join([o.execstr() for o in self.buf])
-        # print(self.execstr)
-        exec(self.execstr, self.context)
+        execstr = ''.join([o.execstr() for o in buf])
+        # print(execstr)
+        exec(execstr, self.context)
 
     def objectify(self, element):
         m = self.delimiters.re_tag.match(element)

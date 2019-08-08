@@ -214,6 +214,25 @@ def one():
         Render(instream, outstream, delimiters="<<< >>>")()
         self.assertEqual(outstream.getvalue(), expected_output)
 
+    def testLazy(self):
+        tmpl = "X"
+        expected_output = "X"
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        rndr = Render(instream, outstream)
+        rndr()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
+        tmpl = "Y"
+        expected_output = "Y"
+        instream.truncate(0)
+        instream.seek(0)
+        instream.write(tmpl)
+        outstream.truncate(0)
+        outstream.seek(0)
+        rndr()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
     def testException(self):
         tmpl = "{{raise RuntimeError}}"
         instream = StringIO(tmpl)

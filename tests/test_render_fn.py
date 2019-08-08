@@ -49,6 +49,11 @@ class TestRenderFunction(unittest.TestCase):
 
         self.assertEqual(output, expected_output)
 
+    def testEmptyInput(self):
+
+        with self.assertRaises(RuntimeError):
+            render()
+
 
 if __name__ == '__main__':
     unittest.main()

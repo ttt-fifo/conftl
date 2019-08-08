@@ -95,7 +95,9 @@ class Text:
 
 class Render:
 
-    def __init__(self, instream, outstream, context=None, delimiters=None):
+    def __init__(self, instream=None, outstream=None, context=None,
+                 delimiters=None):
+
         if context:
             self.context = context
         else:
@@ -126,7 +128,7 @@ class Render:
             buf[i] = self.objectify(buf[i])
 
         execstr = ''.join([o.execstr() for o in buf])
-        # print(execstr)
+        # print('execstr', execstr)
         exec(execstr, self.context)
 
     def objectify(self, element):

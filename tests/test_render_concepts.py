@@ -2,6 +2,9 @@
 import unittest
 from io import StringIO
 from conftl.core import Render
+import os
+
+TMP = '/tmp'
 
 
 class TestRenderConcepts(unittest.TestCase):
@@ -214,22 +217,45 @@ def one():
         Render(instream, outstream, delimiters="<<< >>>")()
         self.assertEqual(outstream.getvalue(), expected_output)
 
+    def testFiles(self):
+        tmpl = "X"
+        expected_output = "X"
+        infile = os.path.join(TMP, f'{os.getpid()}.tmpl')
+        outfile = os.path.join(TMP, f'{os.getpid()}.out')
+
+        with open(infile, 'w') as f:
+            f.write(tmpl)
+
+        with open(infile, 'r') as instream:
+            with open(outfile, 'w') as outstream:
+                Render(instream, outstream)()
+
+        with open(outfile, 'r') as f:
+            output = f.read()
+
+        os.remove(infile)
+        os.remove(outfile)
+
+        self.assertEqual(output, expected_output)
+
     def testLazy(self):
+        rndr = Render()
+
         tmpl = "X"
         expected_output = "X"
         instream = StringIO(tmpl)
         outstream = StringIO()
-        rndr = Render(instream, outstream)
+        rndr.instream = instream
+        rndr.outstream = outstream
         rndr()
         self.assertEqual(outstream.getvalue(), expected_output)
 
         tmpl = "Y"
         expected_output = "Y"
-        instream.truncate(0)
-        instream.seek(0)
-        instream.write(tmpl)
-        outstream.truncate(0)
-        outstream.seek(0)
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        rndr.instream = instream
+        rndr.outstream = outstream
         rndr()
         self.assertEqual(outstream.getvalue(), expected_output)
 

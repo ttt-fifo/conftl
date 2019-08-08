@@ -24,7 +24,7 @@ class TestPerformance(unittest.TestCase):
     def testPerf(self):
         with open('performance.tmpl', 'r') as instream:
             with open('performance.out', 'w') as outstream:
-                Render(instream, outstream)
+                Render(instream, outstream)()
 
 
 if __name__ == '__main__':

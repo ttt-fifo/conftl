@@ -5,11 +5,12 @@ import re
 from ._compat import EOL
 
 
-re_first_eol = re.compile(r'^\n|\r\n|\r+')
+re_first_eol = re.compile(r'^\n|\r\n|\r{1}')
 re_eol = re.compile(r'\n|\r\n|\r+')
 
 
 class Delimiters:
+
     def __init__(self, string="{{ }}"):
         start, stop = string.split(' ')
 
@@ -77,6 +78,7 @@ class Tag:
 
 
 class Text:
+
     def __init__(self, string, indent, rm_first_eol):
         self.data = string
         self.indent = int(indent)

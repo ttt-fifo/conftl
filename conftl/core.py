@@ -4,6 +4,9 @@ See docs/render_concepts.txt
 import re
 
 
+re_first_eol = re.compile(r'^\n{1}')
+
+
 class Delimiters:
     def __init__(self, string="{{ }}"):
         start, stop = string.split(' ')
@@ -76,7 +79,7 @@ class Text:
         self.data = string
         self.indent = int(indent)
         if rm_first_eol:
-            self.data = re.sub('^\n{1}', '', self.data)
+            self.data = re_first_eol.sub('', self.data, count=1)
 
     def execstr(self):
         if self.data:

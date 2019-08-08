@@ -2,9 +2,11 @@
 See docs/render_concepts.txt
 """
 import re
+from ._compat import EOL
 
 
-re_first_eol = re.compile(r'^\n{1}')
+re_first_eol = re.compile(r'^\n|\r\n|\r+')
+re_eol = re.compile(r'\n|\r\n|\r+')
 
 
 class Delimiters:
@@ -19,7 +21,7 @@ class Delimiters:
 
         start_escaped = re.escape(self.start)
         stop_escaped = re.escape(self.stop)
-        regex_tag = rf"({start_escaped}[\w\W\n]*?{stop_escaped})"
+        regex_tag = rf"({start_escaped}[\w\W\r\n]*?{stop_escaped})"
         self.re_tag = re.compile(regex_tag, re.MULTILINE)
 
 
@@ -59,16 +61,16 @@ class Tag:
 
     def execstr_variable(self):
         return ' ' * 4 * self.indent + \
-               f'_outstream.write(str({self.data}))' + '\n'
+               f'_outstream.write(str({self.data}))' + EOL
 
     def execstr_code(self):
         result = ''
-        for ln in self.data.split('\n'):
-            result += ' ' * 4 * self.indent + str(ln) + '\n'
+        for ln in re_eol.split(self.data):
+            result += ' ' * 4 * self.indent + str(ln) + EOL
         return result
 
     def execstr_blockstart(self):
-        return ' ' * 4 * self.indent + str(self.data) + '\n'
+        return ' ' * 4 * self.indent + str(self.data) + EOL
 
     def execstr_blockend(self):
         return ''
@@ -84,7 +86,7 @@ class Text:
     def execstr(self):
         if self.data:
             return ' ' * 4 * self.indent + \
-                   f'_outstream.write("""{self.data}""")' + '\n'
+                   f'_outstream.write("""{self.data}""")' + EOL
         else:
             return ''
 

@@ -111,8 +111,9 @@ class Render:
         self.instream = instream
         self.outstream = outstream
 
+    def __call__(self):
         self.buf = []
-        for val in self.delimiters.re_tag.split(instream.read()):
+        for val in self.delimiters.re_tag.split(self.instream.read()):
             if val != '':
                 self.buf.append(val)
 

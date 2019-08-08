@@ -11,7 +11,7 @@ class TestRenderConcepts(unittest.TestCase):
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream)
+        Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testUnindent(self):
@@ -19,7 +19,7 @@ class TestRenderConcepts(unittest.TestCase):
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream)
+        Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testUnindentNewLine(self):
@@ -29,7 +29,7 @@ class TestRenderConcepts(unittest.TestCase):
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream, context=context)
+        Render(instream, outstream, context=context)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testIndentation(self):
@@ -39,7 +39,7 @@ class TestRenderConcepts(unittest.TestCase):
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream)
+        Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testClearText(self):
@@ -52,7 +52,7 @@ texting clearly
         expected_output = tmpl
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream)
+        Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testClearTextWithDelimiterStart(self):
@@ -65,7 +65,7 @@ texting clearly
         expected_output = tmpl
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream)
+        Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testClearTextWithDelimiterEnd(self):
@@ -78,7 +78,7 @@ texting clearly
         expected_output = tmpl
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream)
+        Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testCodeText(self):
@@ -91,7 +91,7 @@ X
 """
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream)
+        Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testVariable(self):
@@ -100,7 +100,7 @@ X
         expected_output = "100"
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream, context=context)
+        Render(instream, outstream, context=context)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testVariableNewLine(self):
@@ -111,7 +111,7 @@ X
 """
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream, context=context)
+        Render(instream, outstream, context=context)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testVariableAndClearText(self):
@@ -120,7 +120,7 @@ X
         expected_output = "lorem ipsum 100 text"
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream, context=context)
+        Render(instream, outstream, context=context)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testVariableIndented(self):
@@ -130,7 +130,7 @@ X
         expected_output = "100"
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream, context=context)
+        Render(instream, outstream, context=context)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testVariableIndentedNewLine(self):
@@ -142,7 +142,7 @@ X
 """
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream, context=context)
+        Render(instream, outstream, context=context)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testVariableCodeText(self):
@@ -154,7 +154,7 @@ lorem ipsum {{=i}} texting
 """
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream, context=context)
+        Render(instream, outstream, context=context)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testTwoIndentations(self):
@@ -168,7 +168,7 @@ X
 """
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream)
+        Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testMultilineCode(self):
@@ -181,7 +181,7 @@ def one():
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream)
+        Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testMultilineCodeIndented(self):
@@ -195,7 +195,7 @@ def one():
         expected_output = "1"
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream)
+        Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testDelimitersChange(self):
@@ -203,7 +203,7 @@ def one():
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream, delimiters="[[ ]]")
+        Render(instream, outstream, delimiters="[[ ]]")()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testDelimitersThreeChars(self):
@@ -211,7 +211,7 @@ def one():
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
-        Render(instream, outstream, delimiters="<<< >>>")
+        Render(instream, outstream, delimiters="<<< >>>")()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testException(self):
@@ -219,7 +219,7 @@ def one():
         instream = StringIO(tmpl)
         outstream = StringIO()
         with self.assertRaises(RuntimeError):
-            Render(instream, outstream)
+            Render(instream, outstream)()
 
 
 if __name__ == '__main__':

@@ -1,15 +1,24 @@
 """
 See docs/render_concepts.txt
 """
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import int
+from builtins import str
+from future import standard_library
+from builtins import object
 import re
 from ._compat import EOL
+standard_library.install_aliases()
 
 
 re_first_eol = re.compile(r'^\n|\r\n|\r{1}')
 re_eol = re.compile(r'\n|\r\n|\r+')
 
 
-class Delimiters:
+class Delimiters(object):
 
     def __init__(self, string="{{ }}"):
         start, stop = string.split(' ')
@@ -22,11 +31,11 @@ class Delimiters:
 
         start_escaped = re.escape(self.start)
         stop_escaped = re.escape(self.stop)
-        regex_tag = rf"({start_escaped}[\w\W\r\n]*?{stop_escaped})"
+        regex_tag = r"(%s[\w\W\r\n]*?%s)" % (start_escaped, stop_escaped)
         self.re_tag = re.compile(regex_tag, re.MULTILINE)
 
 
-class Tag:
+class Tag(object):
 
     def __init__(self, string, indent, delimiters):
         self.data = string
@@ -62,7 +71,7 @@ class Tag:
 
     def execstr_variable(self):
         return ' ' * 4 * self.indent + \
-               f'_outstream.write(str({self.data}))' + EOL
+               '_outstream.write(str(%s))' % (self.data) + EOL
 
     def execstr_code(self):
         result = ''
@@ -77,7 +86,7 @@ class Tag:
         return ''
 
 
-class Text:
+class Text(object):
 
     def __init__(self, string, indent, rm_first_eol):
         self.data = string
@@ -88,12 +97,12 @@ class Text:
     def execstr(self):
         if self.data:
             return ' ' * 4 * self.indent + \
-                   f'_outstream.write("""{self.data}""")' + EOL
+                   '_outstream.write("""%s""")' % (self.data) + EOL
         else:
             return ''
 
 
-class Render:
+class Render(object):
 
     def __init__(self, instream=None, outstream=None, context=None,
                  delimiters=None):

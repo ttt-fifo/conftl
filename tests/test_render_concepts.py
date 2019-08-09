@@ -2,6 +2,7 @@
 import unittest
 from io import StringIO
 from conftl.core import Render
+from conftl._compat import unicode_
 import os
 
 TMP = '/tmp'
@@ -11,6 +12,7 @@ class TestRenderConcepts(unittest.TestCase):
 
     def testTag(self):
         tmpl = "{{True}}"
+        tmpl = unicode_(tmpl)
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -19,6 +21,7 @@ class TestRenderConcepts(unittest.TestCase):
 
     def testUnindent(self):
         tmpl = "{{pass}}"
+        tmpl = unicode_(tmpl)
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -28,6 +31,7 @@ class TestRenderConcepts(unittest.TestCase):
     def testUnindentNewLine(self):
         tmpl = """{{pass}}
 """
+        tmpl = unicode_(tmpl)
         context = dict(i=100)
         expected_output = ""
         instream = StringIO(tmpl)
@@ -39,6 +43,7 @@ class TestRenderConcepts(unittest.TestCase):
         tmpl = """{{if True:}}
 {{True}}
 {{pass}}"""
+        tmpl = unicode_(tmpl)
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -52,6 +57,7 @@ text lorem text ipsum text
 clear text clear text
 texting clearly
 """
+        tmpl = unicode_(tmpl)
         expected_output = tmpl
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -65,6 +71,7 @@ text lorem {{ ipsum text
 clear text clear text
 texting clearly
 """
+        tmpl = unicode_(tmpl)
         expected_output = tmpl
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -78,6 +85,7 @@ text lorem }} ipsum text
 clear text clear text
 texting clearly
 """
+        tmpl = unicode_(tmpl)
         expected_output = tmpl
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -89,6 +97,7 @@ texting clearly
 X
 {{pass}}
 """
+        tmpl = unicode_(tmpl)
         expected_output = """X
 X
 """
@@ -99,6 +108,7 @@ X
 
     def testVariable(self):
         tmpl = "{{=i}}"
+        tmpl = unicode_(tmpl)
         context = dict(i=100)
         expected_output = "100"
         instream = StringIO(tmpl)
@@ -109,6 +119,7 @@ X
     def testVariableNewLine(self):
         tmpl = """{{=i}}
 """
+        tmpl = unicode_(tmpl)
         context = dict(i=100)
         expected_output = """100
 """
@@ -119,6 +130,7 @@ X
 
     def testVariableAndClearText(self):
         tmpl = "lorem ipsum {{=i}} text"
+        tmpl = unicode_(tmpl)
         context = dict(i=100)
         expected_output = "lorem ipsum 100 text"
         instream = StringIO(tmpl)
@@ -129,6 +141,7 @@ X
     def testVariableIndented(self):
         tmpl = """{{if True:}}
 {{=i}}{{pass}}"""
+        tmpl = unicode_(tmpl)
         context = dict(i=100)
         expected_output = "100"
         instream = StringIO(tmpl)
@@ -140,6 +153,7 @@ X
         tmpl = """{{if True:}}
 {{=i}}
 {{pass}}"""
+        tmpl = unicode_(tmpl)
         context = dict(i=100)
         expected_output = """100
 """
@@ -152,6 +166,7 @@ X
         tmpl = """{{if True:}}
 lorem ipsum {{=i}} texting
 {{pass}}"""
+        tmpl = unicode_(tmpl)
         context = dict(i=100)
         expected_output = """lorem ipsum 100 texting
 """
@@ -167,6 +182,7 @@ X
 {{pass}}
 {{pass}}
 """
+        tmpl = unicode_(tmpl)
         expected_output = """X
 """
         instream = StringIO(tmpl)
@@ -181,6 +197,7 @@ def one():
     return 1
 }}
 """
+        tmpl = unicode_(tmpl)
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -195,6 +212,7 @@ def one():
 }}
 {{pass}}
 {{=one()}}"""
+        tmpl = unicode_(tmpl)
         expected_output = "1"
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -203,6 +221,7 @@ def one():
 
     def testDelimitersChange(self):
         tmpl = "[[True]]"
+        tmpl = unicode_(tmpl)
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -211,6 +230,7 @@ def one():
 
     def testDelimitersThreeChars(self):
         tmpl = "<<<True>>>"
+        tmpl = unicode_(tmpl)
         expected_output = ""
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -219,9 +239,10 @@ def one():
 
     def testFiles(self):
         tmpl = "X"
+        tmpl = unicode_(tmpl)
         expected_output = "X"
-        infile = os.path.join(TMP, f'{os.getpid()}.tmpl')
-        outfile = os.path.join(TMP, f'{os.getpid()}.out')
+        infile = os.path.join(TMP, '%s.tmpl' % (os.getpid()))
+        outfile = os.path.join(TMP, '%s.out' % (os.getpid()))
 
         with open(infile, 'w') as f:
             f.write(tmpl)
@@ -242,6 +263,7 @@ def one():
         rndr = Render()
 
         tmpl = "X"
+        tmpl = unicode_(tmpl)
         expected_output = "X"
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -251,6 +273,7 @@ def one():
         self.assertEqual(outstream.getvalue(), expected_output)
 
         tmpl = "Y"
+        tmpl = unicode_(tmpl)
         expected_output = "Y"
         instream = StringIO(tmpl)
         outstream = StringIO()
@@ -261,6 +284,7 @@ def one():
 
     def testException(self):
         tmpl = "{{raise RuntimeError}}"
+        tmpl = unicode_(tmpl)
         instream = StringIO(tmpl)
         outstream = StringIO()
         with self.assertRaises(RuntimeError):

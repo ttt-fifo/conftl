@@ -71,7 +71,7 @@ class Tag(object):
 
     def execstr_variable(self):
         return ' ' * 4 * self.indent + \
-               '_outstream.write(str(%s))' % (self.data) + EOL
+               '_outstream.write(unicode_(%s))' % (self.data) + EOL
 
     def execstr_code(self):
         result = ''
@@ -136,7 +136,8 @@ class Render(object):
         for i, val in enumerate(buf):
             buf[i] = self.objectify(buf[i])
 
-        execstr = ''.join([o.execstr() for o in buf])
+        execstr = 'from conftl._compat import unicode_' + EOL + \
+                  ''.join([o.execstr() for o in buf])
         # print('execstr', execstr)
         exec(execstr, self.context)
 
@@ -148,4 +149,6 @@ class Render(object):
             self.rm_trail_eol = bool(obj.rm_trail_eol)
             return obj
         else:
-            return Text(element, self.indent, self.rm_trail_eol)
+            obj = Text(element, self.indent, self.rm_trail_eol)
+            self.rm_trail_eol = False
+            return obj

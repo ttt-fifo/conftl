@@ -7,6 +7,7 @@ from ._compat import EOL
 
 re_first_eol = re.compile(r'^\n|\r\n|\r{1}')
 re_eol = re.compile(r'\n|\r\n|\r+')
+re_three_quotes = re.compile(r'"""')
 
 
 class Delimiters:
@@ -87,6 +88,7 @@ class Text:
 
     def execstr(self):
         if self.data:
+            self.data = re_three_quotes.sub(r'\"\"\"', self.data, re.MULTILINE)
             return ' ' * 4 * self.indent + \
                    f'_outstream.write("""{self.data}""")' + EOL
         else:

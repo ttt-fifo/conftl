@@ -100,6 +100,7 @@ clear text clear text
 texting clearly
 '''
         expected_output = tmpl
+        tmpl = unicode_(tmpl)
         instream = StringIO(tmpl)
         outstream = StringIO()
         Render(instream, outstream)()

@@ -25,7 +25,7 @@ class TestRenderFunction(unittest.TestCase):
         tmpl = "X"
         expected_output = "X"
 
-        infile = os.path.join(TMP, f'infile_{os.getpid()}.tmpl')
+        infile = os.path.join(TMP, 'infile_%s.tmpl' % (os.getpid()))
         with open(infile, 'w') as f:
             f.write(tmpl)
 
@@ -38,7 +38,7 @@ class TestRenderFunction(unittest.TestCase):
     def testOutfile(self):
         tmpl = "X"
         expected_output = "X"
-        outfile = os.path.join(TMP, f'outfile_{os.getpid()}.tmpl')
+        outfile = os.path.join(TMP, 'outfile_%s.tmpl' % (os.getpid()))
 
         render(content=tmpl, outfile=outfile)
 

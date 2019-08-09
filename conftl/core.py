@@ -6,7 +6,6 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 from builtins import int
-from builtins import str
 from future import standard_library
 from builtins import object
 import re
@@ -43,9 +42,11 @@ class Tag(object):
         self.delimiters = delimiters
         self.data = \
             self.data[self.delimiters.start_len:-self.delimiters.stop_len]
+
         self.indent = int(indent)
         self.indent_delta = 0
         self.rm_trail_eol = True
+
         if self.data.startswith('='):
             self.data = self.data[1:]
             self.typ = 'variable'
@@ -72,16 +73,16 @@ class Tag(object):
 
     def execstr_variable(self):
         return ' ' * 4 * self.indent + \
-               '_outstream.write(unicode_(%s))' % (self.data) + EOL
+               '_outstream.write(_unicd(%s))' % (self.data) + EOL
 
     def execstr_code(self):
         result = ''
         for ln in re_eol.split(self.data):
-            result += ' ' * 4 * self.indent + str(ln) + EOL
+            result += ' ' * 4 * self.indent + ln + EOL
         return result
 
     def execstr_blockstart(self):
-        return ' ' * 4 * self.indent + str(self.data) + EOL
+        return ' ' * 4 * self.indent + self.data + EOL
 
     def execstr_blockend(self):
         return ''
@@ -138,7 +139,7 @@ class Render(object):
         for i, val in enumerate(buf):
             buf[i] = self.objectify(buf[i])
 
-        execstr = 'from conftl._compat import unicode_' + EOL + \
+        execstr = 'from conftl._compat import _unicd' + EOL + \
                   ''.join([o.execstr() for o in buf])
         # print('execstr', execstr)
         exec(execstr, self.context)

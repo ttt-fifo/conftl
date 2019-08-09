@@ -6,9 +6,9 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 from future import standard_library
-standard_library.install_aliases()
 from functools import wraps
 from .render_fn import render
+standard_library.install_aliases()
 
 
 class template(object):

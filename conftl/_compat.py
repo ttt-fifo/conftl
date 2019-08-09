@@ -6,7 +6,7 @@ PY2 = sys.version_info[0] == 2
 
 if PY2:
     from cStringIO import StringIO
-    unicode_ = unicode
+    _unicd = unicode
 else:
     from io import StringIO
-    unicode_ = str
+    _unicd = str

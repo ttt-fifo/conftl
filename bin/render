@@ -1,0 +1,129 @@
+#!/bin/env python
+"""
+render command line script for conftl rendering
+"""
+from conftl import Render
+from collections import deque
+import sys
+import ast
+
+usage = """
+Usage:
+
+render [-i infile.tmpl] [-o outfile.conf] [-d "{% %}"] [-c i=3] [-c j=4] ...
+
+Options:
+
+-i or --infile
+Input template, if not given you should provide the template code on stdin.
+
+-o or --outfile
+Output file, if not given the result will go to stdout.
+WARNING: the contents of outfile will be overwritten.
+
+-d or --delimiters
+Template delimiters, defaults are "{{ }}"
+
+-c or --context
+Context variable. You can repeat this option to give
+multiple context variables.
+"""
+
+
+def parse_arg(sys_argv):
+    """
+    Parses sys.argv
+    """
+
+    sys_argv = deque(sys_argv)
+    sys_argv.popleft()
+    kwarg = {}
+    while True:
+        try:
+            a = sys_argv.popleft()
+        except IndexError:
+            break
+
+        if a.startswith('-'):
+            try:
+                val = sys_argv.popleft()
+            except IndexError:
+                print(usage)
+                exit(0)
+            if kwarg.get(a):
+                kwarg[a].append(val)
+            else:
+                kwarg[a] = [val]
+        else:
+            print(usage)
+            exit(0)
+    return kwarg
+
+
+def arg2renderarg(kwarg):
+    """
+    From given arg, kwarg
+    Returns: the arguments dict for Render(**renderarg)
+    """
+
+    renderarg = {}
+
+    renderarg['context'] = {}
+    renderarg['delimiters'] = None
+    for k in kwarg:
+        if k == '-c' or k == '--context':
+            for val in kwarg[k]:
+                cxkey, cxval = parse_context(val)
+                renderarg['context'][cxkey] = cxval
+        elif k == '-d' or k == '--delimiters':
+            renderarg['delimiters'] = kwarg[k][0]
+        elif k == '-i' or k == '--infile':
+            renderarg['instream'] = open(kwarg[k][0], 'r')
+        elif k == '-o' or k == '--outfile':
+            renderarg['outstream'] = open(kwarg[k][0], 'w')
+        else:
+            print(usage)
+            exit(0)
+
+    if not renderarg.get('instream'):
+        renderarg['instream'] = sys.stdin
+
+    if not renderarg.get('outstream'):
+        renderarg['outstream'] = sys.stdout
+
+    return renderarg
+
+
+def parse_context(val):
+    """
+    Parses one context variable
+    val: should be string of type a=3
+    Returns: context key, context val
+    """
+    cxkey, cxval = val.split('=')
+    typ = guess_type(cxval)
+    cxval = typ(cxval)
+    return cxkey, cxval
+
+
+def guess_type(s):
+    """
+    Guesses the type of the value by given string
+    """
+    try:
+        value = ast.literal_eval(s)
+    except ValueError:
+        return str
+    else:
+        return type(value)
+
+
+if __name__ == '__main__':
+    # get the arguments from command line
+    kwarg = parse_arg(sys.argv)
+    renderarg = arg2renderarg(kwarg)
+    # render
+    Render(**renderarg)()
+    # close the streams
+    renderarg['instream'].close()
+    renderarg['outstream'].close()

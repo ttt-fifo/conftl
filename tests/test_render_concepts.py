@@ -218,6 +218,25 @@ def one():
         Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
+    def testMultilineCodeAfterMultilineCode(self):
+        tmpl = """{{
+import sys
+def one():
+    return 1
+}}
+{{
+import os
+def two():
+    return 2
+}}
+"""
+        tmpl = unicode_(tmpl)
+        expected_output = ""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
     def testMultilineCodeIndented(self):
         tmpl = """{{if True:}}
 {{

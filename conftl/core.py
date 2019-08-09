@@ -151,6 +151,4 @@ class Render(object):
             self.rm_trail_eol = bool(obj.rm_trail_eol)
             return obj
         else:
-            obj = Text(element, self.indent, self.rm_trail_eol)
-            self.rm_trail_eol = False
-            return obj
+            return Text(element, self.indent, self.rm_trail_eol)

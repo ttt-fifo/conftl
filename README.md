@@ -20,7 +20,7 @@ Simple to learn but yet powerful language for templating your configuration file
 
 ## Templating Kickstart
 
-* *Clear text from the template is printed to the output as is*
+* **Clear text from the template is printed to the output as is**
 
 ```
 lorem ipsum dolor sim amet
@@ -34,9 +34,9 @@ lorem ipsum dolor sim amet
 text clear lorem ipsum
 ```
 
-* *Python code in template should be written using tags* ```{{ ...code... }}```
+* **Python code in template should be written using tags** ```{{ ...code... }}```
 
-For example if you would like to assign a value to i, you can do it using the following syntax:
+For example if you would like to assign a value ```3``` to ```i```, you can do it using the following syntax:
 
 ```{{i = 3}}```
 
@@ -53,17 +53,17 @@ i = 3
 }}
 ```
 
-* *Printing a variable value to the output* is done by wrapping the variable in tags and placing = sign in gront of the variable like this ```{{=myvar}}```
+* **Printing a variable value to the output** is done by wrapping the variable in tags and placing = sign in front of the variable like this ```{{=myvar}}```
 
-For example if i has the value of 3 and you put in template:
+For example if ```i``` has the value of ```3``` and you put in template:
 
 ```{{=i}}```
 
-you will receive in the output
+you will receive in the output:
 
 ```3```
 
-* *Combining a Python code block with clear text and variable value outputs* - you should not indent the code block, but you should determine it with ```{{pass}}``` special keyword.
+* **Combining a Python code block with clear text and variable value outputs** - you should not indent the code block, but you should determine it with ```{{pass}}``` special keyword.
 
 Whenever you write a code block into the original Python interpreter it is indented. Lets take the following example of original Python code block:
 
@@ -80,4 +80,4 @@ X {{=i}}
 {{pass}}
 ```
 
-* *You are able to pass values to variables from outside of the template* - this is just a reminder for you to know that there are multiple methods to give 'context' to the template, e.g. assigning variable values outside of the template. About this - in the following sections.
+* **You are able to pass values to template variables from outside of the template** - this is just a reminder for you to know that there are multiple methods to give 'context' to the template, e.g. assigning variable values outside of the template. About this - look the follow up sections.

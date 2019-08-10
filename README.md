@@ -163,17 +163,34 @@ render -c "i='my string here'"
 
 , so please quote the string with single quote and quote the whole value with double quotes.
 
-- *Other python types cannot be assigned* from command line, please invoke render from python script if you need to use complex python types in the context.
+- *Other python types cannot be assigned* from command line, please use a json context file instead.
+
+* **Context from json file**
+
+The json file format should be similar to:
+
+```json
+{"myvar": 4,
+ "otherthing": [1, 3, 5],
+ "stringsomething": "hello world"
+}
+```
+
+You can invoke render by giving the -j option like this:
+
+```
+render -i mytemplate.tmpl -j mycontext.ctx
+```
 
 * **See render -h for the full set of options**
 
 ```
-$ bin/render -h
+$ render -h
 
 Usage:
 
 render -h
-render [-i infile.tmpl] [-o outfile.conf] [-d "{% %}"] [-c i=3] [-c j=4] ...
+render [-i infile.tmpl] [-o outfile.conf] [-d "{% %}"] [-j context.json] [-c i=3] [-c j=4] ...
 
 Options:
 
@@ -185,11 +202,14 @@ Output file, if not given the result will go to stdout.
 WARNING: the contents of outfile will be overwritten.
 
 -d or --delimiters
-Template delimiters, defaults are "{{ }}"
+Template delimiters, defaults are "{{ }}".
 
 -c or --context
 Context variable. You can repeat this option to give
 multiple context variables.
+
+-j or --json-context
+Get the context from a json file.
 
 -h or --help
 Prints current help screen.
@@ -325,22 +345,6 @@ The code **should be**:
 ...
 {{pass}}
 ```
-
-* The command line tool render cannot get complex datatypes as context variables.
-
-This is **not possible**:
-
-```
-render -c myvar={'a': 10, 'b': 12}
-```
-
-Possible context variables are **numbers and strings only**:
-
-```
-render -c i=3 -c j=4.2 -c "s='my string here'"
-```
-
-In case you need complex data structures, please invoke the templating from Python.
 
 * Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Multiple attack vectors could be used by an malicious end-user who has the possibility to execute arbitrary Python code.
 

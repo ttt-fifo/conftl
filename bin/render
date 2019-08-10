@@ -7,12 +7,14 @@ from conftl import Render
 from collections import deque
 import sys
 import ast
+import json
 
 usage = """
 Usage:
 
 render -h
-render [-i infile.tmpl] [-o outfile.conf] [-d "{% %}"] [-c i=3] [-c j=4] ...
+render [-i infile.tmpl] [-o outfile.conf] [-d "{% %}"] [-j context.json] \
+[-c i=3] [-c j=4] ...
 
 Options:
 
@@ -24,11 +26,14 @@ Output file, if not given the result will go to stdout.
 WARNING: the contents of outfile will be overwritten.
 
 -d or --delimiters
-Template delimiters, defaults are "{{ }}"
+Template delimiters, defaults are "{{ }}".
 
 -c or --context
 Context variable. You can repeat this option to give
 multiple context variables.
+
+-j or --json-context
+Get the context from a json file.
 
 -h or --help
 Prints current help screen.
@@ -60,10 +65,12 @@ def parse_arg(sys_argv):
                 print('ERROR parsing arguments', file=sys.stderr)
                 print(usage, file=sys.stderr)
                 exit(1)
+
             if kwarg.get(a):
                 kwarg[a].append(val)
             else:
                 kwarg[a] = [val]
+
         else:
             print('ERROR parsing arguments', file=sys.stderr)
             print(usage, file=sys.stderr)
@@ -92,6 +99,11 @@ def arg2renderarg(kwarg):
             renderarg['instream'] = open(kwarg[k][0], 'r')
         elif k == '-o' or k == '--outfile':
             renderarg['outstream'] = open(kwarg[k][0], 'w')
+        elif k == '-j' or k == '--json-context':
+            with open(kwarg[k][0], 'r') as f:
+                cx = f.read()
+            cx = json.loads(cx)
+            renderarg['context'].update(cx)
         elif k == '-h' or k == '--help':
             print(usage, file=sys.stderr)
             exit(0)

@@ -3,11 +3,8 @@
 # invoke this template by using render command line utility
 # like this:
 #
-# render -i iptables_template.conf.tmpl -c "interface='eth0'" -c "protocol='tcp'" -c "dports='80, 8080, 443'"
+# render -i iptables_template.conf.tmpl -j iptables_template.conf.ctx
 # ---------------------------------------------------------
-
-dports = [port.strip() for port in dports.split(',')]
-
 }}
 *filter
 :INPUT DROP [0:0]

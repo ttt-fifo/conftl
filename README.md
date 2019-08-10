@@ -8,7 +8,7 @@ Simple to learn but yet powerful language for templating your configuration file
 
 * Powerful - interpretation of python code is embedded into the templating language.
 
-* Platform independent - tested under Linux and Windows, should work on other Unix platforms as well, Python 2.17 compatible, Python 3.x compatible. Please place an [issue](https://github.com/ttt-fifo/conftl/issues) in case you find problems with your platform of choice and I will try to help.
+* Platform independent - tested under Linux and Windows, should work on other Unix platforms as well, Python 2.7 compatible, Python 3.x compatible. Please place an [issue](https://github.com/ttt-fifo/conftl/issues) in case you find problems with your platform of choice and I will try to help.
 
 * Performance - minimal code base optimized for performance.
 
@@ -32,6 +32,16 @@ Alternatively download the source code:
 git clone https://github.com/ttt-fifo/conftl
 ```
 
+Make your first templating test from command line:
+
+```bash
+$ render -c "name='John Smith'"
+Hello, {{=name}}
+Hello, John Smith
+```
+
+NOTE: Write ```Hello, {{=name}}``` on stdin, followed by Enter, Ctr+D
+
 Make your first templating test in your Python REPL:
 
 ```python
@@ -47,9 +57,9 @@ Make your first templating test in your Python REPL:
 
 Linux or other Unix distribution or Windows.
 
-Please place an [issue](https://github.com/ttt-fifo/conftl/issues) in case the current implementation is not working with your platform and I will try to help.
-
 Python 2.7 or Python 3.x
+
+Please place an [issue](https://github.com/ttt-fifo/conftl/issues) in case the current implementation is not working with your platform and I will try to help.
 
 ## Templating Kickstart
 

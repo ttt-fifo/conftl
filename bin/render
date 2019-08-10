@@ -2,6 +2,7 @@
 """
 render command line script for conftl rendering
 """
+from __future__ import print_function
 from conftl import Render
 from collections import deque
 import sys
@@ -10,6 +11,7 @@ import ast
 usage = """
 Usage:
 
+render -h
 render [-i infile.tmpl] [-o outfile.conf] [-d "{% %}"] [-c i=3] [-c j=4] ...
 
 Options:
@@ -27,6 +29,9 @@ Template delimiters, defaults are "{{ }}"
 -c or --context
 Context variable. You can repeat this option to give
 multiple context variables.
+
+-h or --help
+Prints current help screen.
 """
 
 
@@ -45,18 +50,24 @@ def parse_arg(sys_argv):
             break
 
         if a.startswith('-'):
+            if a == '-h' or a == '--help':
+                print(usage, file=sys.stderr)
+                exit(0)
+
             try:
                 val = sys_argv.popleft()
             except IndexError:
-                print(usage)
-                exit(0)
+                print('ERROR parsing arguments', file=sys.stderr)
+                print(usage, file=sys.stderr)
+                exit(1)
             if kwarg.get(a):
                 kwarg[a].append(val)
             else:
                 kwarg[a] = [val]
         else:
-            print(usage)
-            exit(0)
+            print('ERROR parsing arguments', file=sys.stderr)
+            print(usage, file=sys.stderr)
+            exit(1)
     return kwarg
 
 
@@ -81,9 +92,13 @@ def arg2renderarg(kwarg):
             renderarg['instream'] = open(kwarg[k][0], 'r')
         elif k == '-o' or k == '--outfile':
             renderarg['outstream'] = open(kwarg[k][0], 'w')
-        else:
-            print(usage)
+        elif k == '-h' or k == '--help':
+            print(usage, file=sys.stderr)
             exit(0)
+        else:
+            print('ERROR parsing arguments', file=sys.stderr)
+            print(usage, file=sys.stderr)
+            exit(1)
 
     if not renderarg.get('instream'):
         renderarg['instream'] = sys.stdin
@@ -100,7 +115,12 @@ def parse_context(val):
     val: should be string of type a=3
     Returns: context key, context val
     """
-    cxkey, cxval = val.split('=')
+    try:
+        cxkey, cxval = val.split('=')
+    except Exception as e:
+        print('ERROR parsing context variable', file=sys.stderr)
+        print(str(e), file=sys.stderr)
+        exit(1)
     typ = guess_type(cxval)
     cxval = typ(cxval)
     return cxkey, cxval
@@ -122,8 +142,18 @@ if __name__ == '__main__':
     # get the arguments from command line
     kwarg = parse_arg(sys.argv)
     renderarg = arg2renderarg(kwarg)
+
     # render
-    Render(**renderarg)()
-    # close the streams
+    try:
+        Render(**renderarg)()
+    except Exception as e:
+        print('ERROR in template', file=sys.stderr)
+        print(str(e), file=sys.stderr)
+        renderarg['instream'].close()
+        renderarg['outstream'].close()
+        exit(1)
+
+    # close the streams and exit
     renderarg['instream'].close()
     renderarg['outstream'].close()
+    exit(0)

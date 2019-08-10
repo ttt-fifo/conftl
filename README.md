@@ -304,7 +304,7 @@ The ```instream``` and ```outstream``` should be file handles or StringIO object
 
 ## Examples
 
-Take a look at the [examples](https://github.com/ttt-fifo/conftl/examples) directory.
+Take a look at the [examples](https://github.com/ttt-fifo/conftl/tree/master/examples) directory.
 
 ## Known Limitations
 

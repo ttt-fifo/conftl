@@ -241,6 +241,8 @@ The possible arguments for template are
           delimiters=None)
 ```
 
+You must give eighter infile= or content= as input. You can ommit outfile= and in this case the decorated function will return the output as a string. Changing delimiters= is also possible. The function, decorated with template(...) must return dict, otherwise exception is raised.
+
 This type of complex context computation is well know by the web2py users, because this is the layout of the web2py controller.
 
 * **Render object**

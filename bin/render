@@ -88,22 +88,23 @@ def arg2renderarg(kwarg):
 
     renderarg['context'] = {}
     renderarg['delimiters'] = None
+    cmdcx = {}
     for k in kwarg:
         if k == '-c' or k == '--context':
             for val in kwarg[k]:
                 cxkey, cxval = parse_context(val)
-                renderarg['context'][cxkey] = cxval
+                cmdcx[cxkey] = cxval
+        elif k == '-j' or k == '--json-context':
+            with open(kwarg[k][0], 'r') as f:
+                cx = f.read()
+            cx = json.loads(cx)
+            renderarg['context'].update(cx)
         elif k == '-d' or k == '--delimiters':
             renderarg['delimiters'] = kwarg[k][0]
         elif k == '-i' or k == '--infile':
             renderarg['instream'] = open(kwarg[k][0], 'r')
         elif k == '-o' or k == '--outfile':
             renderarg['outstream'] = open(kwarg[k][0], 'w')
-        elif k == '-j' or k == '--json-context':
-            with open(kwarg[k][0], 'r') as f:
-                cx = f.read()
-            cx = json.loads(cx)
-            renderarg['context'].update(cx)
         elif k == '-h' or k == '--help':
             print(usage, file=sys.stderr)
             exit(0)
@@ -111,6 +112,10 @@ def arg2renderarg(kwarg):
             print('ERROR parsing arguments', file=sys.stderr)
             print(usage, file=sys.stderr)
             exit(1)
+
+    # ensure command line context variables to be updated last
+    # (command line has precedence over json context)
+    renderarg['context'].update(cmdcx)
 
     if not renderarg.get('instream'):
         renderarg['instream'] = sys.stdin

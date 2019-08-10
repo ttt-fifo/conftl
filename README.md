@@ -207,7 +207,7 @@ In case you need to use other delimiters than the default ```{{ }}```, you can c
 
 If you have complex computations, which give you the context output, more convenient helper would be the template decorator. Here is an example how to use it:
 
-```
+```python
 from conftl import template
 
 # Define your function, which should output a dict
@@ -234,7 +234,7 @@ if __name__ == '__main__':
 
 The possible arguments for template are
 
-```
+```python
 @template(infile=None,
           outfile=None,
           content=None,
@@ -248,7 +248,7 @@ This type of complex context computation is well know by the web2py users, becau
 An object from Render class could be used in long running processes, where you can load the object in memory and use it multiple times for templating multiple files:
 
 
-```
+```python
 from conftl import Render
 
 rndr = Render()
@@ -267,13 +267,31 @@ rndr.outstream.close()
 
 The ```instream``` and ```outstream``` should be file handles or StringIO objects.
 
+## Known Limitations
+
+* The opening code for a code block which prints clear text and vars cannot be multiline. Please **do not write this**:
+
+```
+{{i = 0
+while i <= 10:}}
+```
+
+The code **should be**:
+
+```
+{{i = 0}}
+{{while i <= 10:}}
+...
+{{pass}}
+```
+
 ## Contributing
 
 Testing implementation on different platforms.
 
 Do not hesitate to fork me on github.
 
-Place [issue](https://github.com/ttt-fifo/conftl/issues) if you need this.
+Place [issue](https://github.com/ttt-fifo/conftl/issues) if you spot issues with this code.
 
 ## Versioning
 
@@ -289,7 +307,7 @@ See [LICENSE](https://github.com/ttt-fifo/conftl/blob/master/LICENSE) for detail
 
 ## Acknowledgments
 
-Thanks to [Massimo Di Pierro](https://github.com/mdipierro) and the [web2py](https://github.com/we2py) team for the inspiration.
+Thanks to [Massimo Di Pierro](https://github.com/mdipierro) and the [web2py](https://github.com/web2py) team for the inspiration.
 
 ## See Also
 

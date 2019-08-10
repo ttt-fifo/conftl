@@ -123,6 +123,8 @@ def parse_context(val):
         exit(1)
     typ = guess_type(cxval)
     cxval = typ(cxval)
+    if type(cxval) == str:
+        cxval = cxval.strip("'")
     return cxkey, cxval
 
 

@@ -63,7 +63,7 @@ you will receive in the output:
 
 ```3```
 
-* **Combining a Python code block with clear text and variable value outputs** - you should not indent the code block as you normaly do with Python, but you should determine it with ```{{pass}}``` special keyword.
+* **Combining a Python code block with clear text and variable outputs** - you should not indent the code block as you normaly do with Python, but you should determine it with ```{{pass}}``` special keyword instead.
 
 Whenever you write a code block into the original Python interpreter you indent the code. Lets take the following example of original Python code block:
 
@@ -82,7 +82,7 @@ X {{=i}}
 
 * **You are able to pass values to template variables from outside of the template** - this is just a reminder for you to know that there are multiple methods to give 'context' to the template, e.g. assigning variable values outside of the template. About this - look the follow up sections.
 
-## Command Line Tool for Rendering
+## Command Line Tool for Rendering (render)
 
 * **The render command line tool works as follows:**
 
@@ -97,7 +97,8 @@ WARNING: filename.conf will be overwriten!!!
 In case input template is not given with -i, you would be expected to place template code on stdin.
 
 NOTE: For Linux and other Unix systems write template code and finish it with Ctr + D
-      For Windows finish it with Ctr + z and then hit ENTER
+
+NOTE: For Windows finish template code with with Ctr + z and then hit ENTER
 
 In case output filename is not given, the output will be written to stdout.
 
@@ -115,7 +116,23 @@ For assigning values to multiple variables, just repeat -c flag multiple times:
 render -i templatename.tmpl -o filename.conf -c i=4 -c j=8 -c x=2
 ```
 
-* **See render -h for the full set of options***
+- *You can assign integer values*
+
+```
+render -c i=4
+```
+
+- *You can assign string values*, but please follow strictly this layout:
+
+```
+render -c "i='my string here'"
+```
+
+, so please quote the string with single quote and quote the whole value with double quotes.
+
+- *Other python types cannot be assigned* from command line, please invoke render from python script if you need to use complex python types in the context.
+
+* **See render -h for the full set of options**
 
 ```
 $ bin/render -h
@@ -144,3 +161,106 @@ multiple context variables.
 -h or --help
 Prints current help screen.
 ```
+
+## Rendering Template from Python
+
+There are three interfaces for rendering a template from Python: the function ```render(...)```, the class ```Render``` and the decorator ```@template(...)``` . Please see the explanation below:
+
+* **render(...) function**
+
+The signature of the function follows:
+
+```
+render(infile=None,
+       outfile=None,
+       context=None,
+       content=None,
+       delimiters=None)
+```
+
+You can use the function by giving infile= as argument (this is the template file). If not given, you should give the content= value - this would be a string with the template content.
+
+Output file could be given by outfile= argument. If given, the output will be written to this file. On outfile= absence, the output is returned as string.
+
+Consider the following example:
+
+```
+>>>
+>>> from conftl import render
+>>> render(content='{{=i}}', context=dict(i=8))
+'8'
+>>>
+```
+
+As you see, you can give the context= value, which is a dict, containing your variable data.
+
+In case you need to use other delimiters than the default ```{{ }}```, you can change the delimiters like this:
+
+```
+>>>
+>>> render(content='[[=i]]', context=dict(i=7), delimiters='[[ ]]')
+'7'
+>>>
+```
+
+* **template decorator**
+
+If you have complex computations, which give you the context output, more convenient helper would be the template decorator. Here is an example how to use it:
+
+```
+from conftl import template
+
+# Define your function, which should output a dict
+# with the template context and decorate it with
+# template decorator
+
+@template(infile='mytemplate.tmpl', outfile='myconf.conf')
+def template_myconf(*arg, **kwarg):
+
+    # ...here your complex computations...
+    i = ....
+    j = ....
+    x = '.....'
+
+    return dict(i=i, j=j, templ_var=x)
+
+if __name__ == '__main__':
+
+    # Here invoke your function and it should create
+    # the needed myconf.conf
+
+    template_myconf(... some args...)
+```
+
+The possible arguments for template are
+
+```
+@template(infile=None,
+          outfile=None,
+          content=None,
+          delimiters=None)
+```
+
+* **Render object***
+
+An object from Render class could be used in long running processes, where you can load the object in memory and use it multiple times for templating multiple files:
+
+
+```
+from conftl import Render
+
+rndr = Render()
+
+# ... use it multiple times like this
+rndr.instream = open('filename.tmpl', 'r')
+rndr.outstream = open('otherfile.conf', 'w')
+rndr.context = dict(i=..., j=..., somevar='...')
+
+rndr()
+
+rndr.instream.close()
+rndr.outstream.close()
+# ....
+```
+
+The ```instream``` and ```outstream``` should be file handles or StringIO objects.

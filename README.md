@@ -18,6 +18,39 @@ Simple to learn but yet powerful language for templating your configuration file
 
 * Suitable for system administration, devops and similar roles.
 
+## Getting Started
+
+Install conftl using pip:
+
+```
+pip install conftl
+```
+
+Alternatively download the source code:
+
+```
+git clone https://github.com/ttt-fifo/conftl
+```
+
+Make your first templating test in your Python REPL:
+
+```python
+>>>
+>>> from conftl import render
+>>>
+>>> render(content='Hello, {{=name}}', context=dict(name='John Smith'))
+'Hello, John Smith'
+>>>
+```
+
+## Prerequisites
+
+Linux or other Unix distribution or Windows.
+
+Please place an [issue](https://github.com/ttt-fifo/conftl/issues) in case the current implementation is not working with your platform and I will try to help.
+
+Python 2.7 or Python 3.x
+
 ## Templating Kickstart
 
 * **Clear text from the template is printed to the output as is**
@@ -304,6 +337,10 @@ render -c i=3 -c j=4.2 -c "s='my string here'"
 ```
 
 In case you need complex data structures, please invoke the templating from Python.
+
+* Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Different attack vectors could be used by an malicious end-user who has the possibility to execute arbitrary Python code.
+
+* In case you want to template HTML output, you would be better off using the web2py's templating language (called [yatl](https://github.com/web2py/yatl)). Yatl has XML escaping switched on by default and also multiple HTML helper functions.
 
 ## Contributing
 

@@ -302,6 +302,10 @@ rndr.outstream.close()
 
 The ```instream``` and ```outstream``` should be file handles or StringIO objects.
 
+## Examples
+
+Take a look at the [examples](https://github.com/ttt-fifo/conftl/examples] directory.
+
 ## Known Limitations
 
 * The opening code for a code block which prints clear text and vars cannot be multiline. Please **do not write this**:
@@ -338,9 +342,9 @@ render -c i=3 -c j=4.2 -c "s='my string here'"
 
 In case you need complex data structures, please invoke the templating from Python.
 
-* Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Different attack vectors could be used by an malicious end-user who has the possibility to execute arbitrary Python code.
+* Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Multiple attack vectors could be used by an malicious end-user who has the possibility to execute arbitrary Python code.
 
-* In case you want to template HTML output, you would be better off using the web2py's templating language (called [yatl](https://github.com/web2py/yatl)). Yatl has XML escaping switched on by default and also multiple HTML helper functions.
+* In case you want to template a HTML output, you would be better off using the web2py's templating language (called [yatl](https://github.com/web2py/yatl)). Yatl has XML escaping switched on by default and also multiple HTML helper functions.
 
 ## Contributing
 

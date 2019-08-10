@@ -116,7 +116,7 @@ def parse_context(val):
     Returns: context key, context val
     """
     try:
-        cxkey, cxval = val.split('=')
+        cxkey, cxval = val.split('=', 1)
     except Exception as e:
         print('ERROR parsing context variable', file=sys.stderr)
         print(str(e), file=sys.stderr)

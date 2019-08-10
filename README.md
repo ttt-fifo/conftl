@@ -116,13 +116,13 @@ For assigning values to multiple variables, just repeat -c flag multiple times:
 render -i templatename.tmpl -o filename.conf -c i=4 -c j=8 -c x=2
 ```
 
-    - *You can assign integer values*
+- *You can assign integer values*
 
 ```
 render -c i=4
 ```
 
-    - *You can assign string values*, but please follow strictly this layout:
+- *You can assign string values*, but please follow strictly this layout:
 
 ```
 render -c "i='my string here'"
@@ -130,7 +130,7 @@ render -c "i='my string here'"
 
 , so please quote the string with single quote and quote the whole value with double quotes.
 
-    - *Other python types cannot be assigned* from command line, please invoke render from python script if you need to use complex python types in the context.
+- *Other python types cannot be assigned* from command line, please invoke render from python script if you need to use complex python types in the context.
 
 * **See render -h for the full set of options**
 
@@ -266,3 +266,23 @@ rndr.outstream.close()
 ```
 
 The ```instream``` and ```outstream``` should be file handles or StringIO objects.
+
+## Contributing
+
+Testing implementation on different platforms.
+
+Do not hesitate to fork me on github.
+
+Place [issue](https://github.com/ttt-fifo/conftl/issues) if you need this.
+
+## Versioning
+
+See the [tags](https://github.com/ttt-fifo/conftl/tags) on this repository.
+
+## Authors
+
+**Todor Todorov** - [ttt-fifo](https://github.com/ttt-fifo)
+
+### License
+
+See [LICENSE](https://github.com/ttt-fifo/conftl/LICENSE) for details.

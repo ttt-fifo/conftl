@@ -283,6 +283,18 @@ See the [tags](https://github.com/ttt-fifo/conftl/tags) on this repository.
 
 **Todor Todorov** - [ttt-fifo](https://github.com/ttt-fifo)
 
-### License
+## License
 
-See [LICENSE](https://github.com/ttt-fifo/conftl/LICENSE) for details.
+See [LICENSE](https://github.com/ttt-fifo/conftl/blob/master/LICENSE) for details.
+
+## Acknowledgments
+
+Thanks to [Massimo Di Pierro](https://github.com/mdipierro) and the [web2py](https://github.com/we2py) team for the inspiration.
+
+## See Also
+
+[web2py on github](https://github.com/web2py/web2py)
+
+web2py templating language [yatl](https://github.com/web2py/yatl)
+
+Another implementation of the same templating language may be found at the [weppy](https://github.com/gi0baro/weppy) project.

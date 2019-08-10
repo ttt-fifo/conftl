@@ -67,7 +67,7 @@ you will receive in the output:
 
 Whenever you write a code block into the original Python interpreter you indent the code. Lets take the following example of original Python code block:
 
-```
+```python
 for i in range(0, 2):
     print('X', i)
 ```
@@ -170,7 +170,7 @@ There are three interfaces for rendering a template from Python: the function ``
 
 The signature of the function follows:
 
-```
+```python
 render(infile=None,
        outfile=None,
        context=None,
@@ -184,7 +184,7 @@ Output file could be given by outfile= argument. If given, the output will be wr
 
 Consider the following example:
 
-```
+```python
 >>>
 >>> from conftl import render
 >>> render(content='{{=i}}', context=dict(i=8))
@@ -196,7 +196,7 @@ As you see, you can give the context= value, which is a dict, containing your va
 
 In case you need to use other delimiters than the default ```{{ }}```, you can change the delimiters like this:
 
-```
+```python
 >>>
 >>> render(content='[[=i]]', context=dict(i=7), delimiters='[[ ]]')
 '7'
@@ -274,6 +274,8 @@ The ```instream``` and ```outstream``` should be file handles or StringIO object
 ```
 {{i = 0
 while i <= 10:}}
+...
+{{pass}}
 ```
 
 The code **should be**:
@@ -284,6 +286,22 @@ The code **should be**:
 ...
 {{pass}}
 ```
+
+* The command line tool render cannot get complex datatypes as context variables.
+
+This is **not possible**:
+
+```
+render -c myvar={'a': 10, 'b': 12}
+```
+
+Possible context variables are **numbers and strings only**:
+
+```
+render -c i=3 -c j=4.2 -c "s='my string here'"
+```
+
+In case you need complex data structures, please invoke the templating from Python.
 
 ## Contributing
 

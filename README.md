@@ -353,6 +353,8 @@ See the [tags](https://github.com/ttt-fifo/conftl/tags) on this repository.
 
 ## License
 
+BSD + other copyright credits
+
 See [LICENSE](https://github.com/ttt-fifo/conftl/blob/master/LICENSE) for details.
 
 ## Acknowledgments

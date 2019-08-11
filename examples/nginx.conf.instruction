@@ -4,6 +4,9 @@ line utility like this:
 
 $ render -i nginx.conf.tmpl -j nginx.conf.ctx -d "<% %>"
 
+As you can see, we change delimiters to "<% %>", because
+this way the nginx.conf is more readable.
+
 See also:
     nginx_render.py
     nginx_decorator.py

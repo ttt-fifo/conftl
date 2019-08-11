@@ -6,12 +6,11 @@ from conftl import template
 
 
 @template('nginx.conf.tmpl', delimiters="<% %>")
-def add_locations():
-    locations = dict(blog="192.168.43.15:8081",
-                     mail="192.168.43.15:8082")
+def add_locations(**kwarg):
+    locations = kwarg
     return dict(locations=locations)
 
 
-out = add_locations()
+out = add_locations(blog="192.168.43.15:8081", mail="192.168.43.15:8082")
 
 print(out)

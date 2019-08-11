@@ -1,0 +1,3 @@
+{"domain": "foo.com",
+ "plusdomain_map": {"fooa.com": "192.168.34.14",
+                    "foob.com": "192.168.34.17"}}

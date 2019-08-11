@@ -1,0 +1,10 @@
+# ------ INSTRUCTION --------------------------------------
+Invoke nginx.conf.tmpl template by using render command
+line utility like this:
+
+$ render -i nginx.conf.tmpl -j nginx.conf.ctx -d "<% %>"
+
+See also:
+    nginx_render.py
+    nginx_decorator.py
+# ---------------------------------------------------------

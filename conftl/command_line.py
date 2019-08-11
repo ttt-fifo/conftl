@@ -31,8 +31,9 @@ WARNING: the contents of outfile will be overwritten.
 Template delimiters, defaults are "{{ }}".
 
 -c or --context
-Context variable. You can repeat this option to give
-multiple context variables.
+Context variable. You can repeat this option to give multiple context
+variables. Wrap complex datatypes with double quotes like this:
+render -c "i=['complex', 'data', 'type']"
 
 -j or --json-context
 Get the context from a json file.
@@ -153,7 +154,7 @@ def parse_context(val):
     return cxkey, cxval
 
 
-if __name__ == '__main__':
+def main():
     # get the arguments from command line
     kwarg = parse_arg(sys.argv)
     renderarg = arg2renderarg(kwarg)
@@ -172,3 +173,7 @@ if __name__ == '__main__':
     renderarg['instream'].close()
     renderarg['outstream'].close()
     exit(0)
+
+
+if __name__ == '__main__':
+    main()

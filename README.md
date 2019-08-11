@@ -159,21 +159,11 @@ For assigning values to multiple variables, just repeat -c flag multiple times:
 render -i templatename.tmpl -o filename.conf -c i=4 -c j=8 -c x=2
 ```
 
-- *You can assign integer values*
+For assigning complex variable datatypes, do not forget to wrap assignment in double quote:
 
 ```
-render -c i=4
+render -i templatename.tmpl -o filename.conf -c "mydict={'a': 1, 'b': 'string'}"
 ```
-
-- *You can assign string values*, but please follow strictly this layout:
-
-```
-render -c "i='my string here'"
-```
-
-, so please quote the string with single quote and quote the whole value with double quotes.
-
-- *Other python types cannot be assigned* from command line, please use a json context file instead.
 
 * **Context from json file**
 
@@ -192,38 +182,23 @@ You can invoke render by giving the -j option like this:
 render -i mytemplate.tmpl -j mycontext.ctx
 ```
 
-* **See render -h for the full set of options**
+NOTE: the command line variables have precedence over json file, e.g. if you assign i=2 in json file and i=3 on command line, the final value of i will be i=3.
+
+* **Environment in context for convenience**
+
+For convenience the ENV dictionary is automatically included in the context and it contains the OS environment variables. The following example prints them on the screen:
 
 ```
-$ render -h
-
-Usage:
-
-render -h
-render [-i infile.tmpl] [-o outfile.conf] [-d "{% %}"] [-j context.json] [-c i=3] [-c j=4] ...
-
-Options:
-
--i or --infile
-Input template, if not given you should provide the template code on stdin.
-
--o or --outfile
-Output file, if not given the result will go to stdout.
-WARNING: the contents of outfile will be overwritten.
-
--d or --delimiters
-Template delimiters, defaults are "{{ }}".
-
--c or --context
-Context variable. You can repeat this option to give
-multiple context variables.
-
--j or --json-context
-Get the context from a json file.
-
--h or --help
-Prints current help screen.
+render
+{{for e in ENV:}}
+{{=e}} : {{=ENV[e]}}
+{{pass}}
+..................................
+... environment will come here ...
+..................................
 ```
+
+NOTE: the ENV is included automatically in context only with the command line tool, using render(...) from Python does not include ENV automatically in context.
 
 ## Rendering Template from Python
 
@@ -356,7 +331,7 @@ The code **should be**:
 {{pass}}
 ```
 
-* Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Multiple attack vectors could be used by an malicious end-user who has the possibility to execute arbitrary Python code.
+* Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Multiple attack vectors could be used by a malicious end-user who has the possibility to execute arbitrary Python code.
 
 * In case you want to template a HTML output, you would be better off using the web2py's templating language (called [yatl](https://github.com/web2py/yatl)). Yatl has XML escaping switched on by default and also multiple HTML helper functions.
 

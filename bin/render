@@ -6,10 +6,12 @@ from __future__ import print_function
 from conftl import Render
 from collections import deque
 import sys
-import ast
+import os
 import json
 
-usage = """
+helpstr = """
+Configuration Templating Language Renderer
+
 Usage:
 
 render -h
@@ -39,6 +41,11 @@ Get the context from a json file.
 Prints current help screen.
 """
 
+usage = """
+For usage see:
+render -h
+"""
+
 
 def parse_arg(sys_argv):
     """
@@ -56,7 +63,7 @@ def parse_arg(sys_argv):
 
         if a.startswith('-'):
             if a == '-h' or a == '--help':
-                print(usage, file=sys.stderr)
+                print(helpstr, file=sys.stderr)
                 exit(0)
 
             try:
@@ -89,6 +96,7 @@ def arg2renderarg(kwarg):
     renderarg['context'] = {}
     renderarg['delimiters'] = None
     cmdcx = {}
+    jsoncx = {}
     for k in kwarg:
         if k == '-c' or k == '--context':
             for val in kwarg[k]:
@@ -97,25 +105,28 @@ def arg2renderarg(kwarg):
         elif k == '-j' or k == '--json-context':
             with open(kwarg[k][0], 'r') as f:
                 cx = f.read()
-            cx = json.loads(cx)
-            renderarg['context'].update(cx)
+            try:
+                jsoncx = json.loads(cx)
+            except Exception as e:
+                print('ERROR getting json context from -j', file=sys.stderr)
+                print(str(e), file=sys.stderr)
+                exit(1)
         elif k == '-d' or k == '--delimiters':
             renderarg['delimiters'] = kwarg[k][0]
         elif k == '-i' or k == '--infile':
             renderarg['instream'] = open(kwarg[k][0], 'r')
         elif k == '-o' or k == '--outfile':
             renderarg['outstream'] = open(kwarg[k][0], 'w')
-        elif k == '-h' or k == '--help':
-            print(usage, file=sys.stderr)
-            exit(0)
         else:
             print('ERROR parsing arguments', file=sys.stderr)
             print(usage, file=sys.stderr)
             exit(1)
 
-    # ensure command line context variables to be updated last
-    # (command line has precedence over json context)
+    # command line has precedence over json
+    renderarg['context'].update(jsoncx)
     renderarg['context'].update(cmdcx)
+    # put environment in context for convenience
+    renderarg['context']['ENV'] = os.environ
 
     if not renderarg.get('instream'):
         renderarg['instream'] = sys.stdin
@@ -134,27 +145,12 @@ def parse_context(val):
     """
     try:
         cxkey, cxval = val.split('=', 1)
+        cxval = eval(cxval)
     except Exception as e:
-        print('ERROR parsing context variable', file=sys.stderr)
+        print('ERROR parsing context variable %s' % (val), file=sys.stderr)
         print(str(e), file=sys.stderr)
         exit(1)
-    typ = guess_type(cxval)
-    cxval = typ(cxval)
-    if type(cxval) == str:
-        cxval = cxval.strip("'")
     return cxkey, cxval
-
-
-def guess_type(s):
-    """
-    Guesses the type of the value by given string
-    """
-    try:
-        value = ast.literal_eval(s)
-    except ValueError:
-        return str
-    else:
-        return type(value)
 
 
 if __name__ == '__main__':

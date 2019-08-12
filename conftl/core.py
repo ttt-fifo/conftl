@@ -137,6 +137,32 @@ class Text(object):
 class Render(object):
     """
     Class for rendering a template
+
+    Arguments:
+        instream: input stream, should be file handle like object
+        outstream: output stream, should be file handle like object
+        context: execution context, e.g. variables exported to template
+        delimiters: tag delimiters, defaulting to "{{ }}"
+
+    Usage:
+        # create the object once
+        rndr = Render()
+
+        # repeat this code to template multiple files
+        rndr.instream = open('template.tmpl')
+        rndr.outstream = open('outfile.conf')
+        rndr.context = {...}
+        rndr()
+        rndr.instream.close()
+        rndr.outstream.close()
+        # --------------------------------------------
+
+    Alternative Usage:
+        instream = StringIO("{{=a}}")
+        outstream = StringIO()
+        context = dict(a=5)
+        Render(instream=instream, outstream=outstream, context=context)()
+        output = outstream.getvalue()
     """
 
     def __init__(self, instream=None, outstream=None, context=None,

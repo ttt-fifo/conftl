@@ -1,3 +1,6 @@
+"""
+Compatibility layer for OS and Python versions
+"""
 import os
 import sys
 

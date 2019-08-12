@@ -12,6 +12,21 @@ standard_library.install_aliases()
 
 
 class template(object):
+    """
+    Templating Decorator
+
+    Arguments:
+        infile:     input template file, if not given content= should be given
+        outfile:    output file, if not given, the decorated function will
+                    return string
+        content:    string with the template, if not given infile=
+                    should be given
+        delimiters: the tag delimiters, defaulting to "{{ }}"
+
+    Templated function returns:
+        string if outfile=None
+        None if outfile= is given
+    """
 
     def __init__(self, infile=None, outfile=None, content=None,
                  delimiters=None):

@@ -1,6 +1,7 @@
 """
 Configuration Templating Language Core
 """
+# See docs/render_concepts.txt
 from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
@@ -14,12 +15,15 @@ standard_library.install_aliases()
 
 
 re_first_eol = re.compile(r'^\n|\r\n|\r{1}')
-re_eol = re.compile(r'\n|\r\n|\r+')
-re_three_quotes = re.compile(r'"""')
+re_eol = re.compile(r'\n|\r\n|\r+', re.MULTILINE)
+re_three_quotes = re.compile(r'"""', re.MULTILINE)
 re_blockmiddle = re.compile('^(else:|elif |except:|except |finally:).*$')
 
 
 class Delimiters(object):
+    """
+    Represents the tag delimiters
+    """
 
     def __init__(self, string="{{ }}"):
         start, stop = string.split(' ')
@@ -37,6 +41,10 @@ class Delimiters(object):
 
 
 class Tag(object):
+    """
+    Represents one tag {{...}}
+    """
+    # See docs/codeblock_concepts.txt
 
     def __init__(self, string, indent, blockindent, delimiters):
         self.data = string
@@ -72,6 +80,11 @@ class Tag(object):
             self.typ = 'code'
 
     def execstr(self):
+        """
+        Returns the python string to execute
+        """
+
+        # conditionally execute a method, based on current type
         return getattr(self, 'execstr_%s' % (self.typ))()
 
     def execstr_blockstart(self):
@@ -98,6 +111,9 @@ class Tag(object):
 
 
 class Text(object):
+    """
+    Represents clear text
+    """
 
     def __init__(self, string, indent, rm_first_eol):
         self.data = string
@@ -106,8 +122,12 @@ class Text(object):
             self.data = re_first_eol.sub('', self.data, count=1)
 
     def execstr(self):
+        """
+        Returns the python string to execute
+        """
+
         if self.data:
-            self.data = re_three_quotes.sub(r'\"\"\"', self.data, re.MULTILINE)
+            self.data = re_three_quotes.sub(r'\"\"\"', self.data)
             return ' ' * self.indent * 4 + \
                    '_outstream.write("""%s""")' % (self.data) + EOL
         else:
@@ -115,6 +135,9 @@ class Text(object):
 
 
 class Render(object):
+    """
+    Class for rendering a template
+    """
 
     def __init__(self, instream=None, outstream=None, context=None,
                  delimiters=None):
@@ -136,6 +159,10 @@ class Render(object):
         self.rm_trail_eol = False
 
     def __call__(self):
+        """
+        The code may be executed multiple times
+        """
+
         # these are needed in context
         self.context['_outstream'] = self.outstream
         self.context['_unicd'] = _unicd
@@ -157,6 +184,10 @@ class Render(object):
         exec(execstr, self.context)
 
     def objectify(self, element):
+        """
+        Creates the correct object from the given string
+        """
+
         m = self.delimiters.re_tag.match(element)
         if m:
             obj = Tag(element, self.indent, self.blockindent, self.delimiters)

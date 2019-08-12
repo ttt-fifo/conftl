@@ -15,6 +15,18 @@ standard_library.install_aliases()
 
 def render(infile=None, outfile=None, context=None, content=None,
            delimiters=None):
+    """
+    Function to render a template
+    Arguments:
+        infile: input template file, if not given arg content= should present
+        outfile: output file, if not given the function returns a string
+        context: execution context, e.g. variables exported to the template
+        content: string with the template, if not given infile= should be given
+        delimiters: the tag delimiters, default "{{ }}"
+    Returns:
+        returns a string only if outfile=None
+        returns None if outfile= is given
+    """
 
     if infile:
         instream = open(infile, 'r')

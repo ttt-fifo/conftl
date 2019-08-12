@@ -204,6 +204,58 @@ X
         Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
+    def testIfElse(self):
+        tmpl = """{{a == 1}}
+{{if a == 0:}}
+X
+{{elif a == 1:}}
+Y
+{{else:}}
+Z
+{{pass}}
+"""
+        tmpl = _unicd(tmpl)
+        expected_output = """Y
+"""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
+    def testTryExcept(self):
+        tmpl = """{{try:}}
+{{True}}
+{{except Exception as e:}}
+X: {{=str(e)}}
+{{finally:}}
+Y
+{{pass}}
+"""
+        tmpl = _unicd(tmpl)
+        expected_output = ""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
+    def testWhileElse(self):
+        tmpl = """{{i = 0}}
+{{while i <= 2:}}
+{{=i}}
+{{i += 1}}
+{{else:}}
+X
+{{pass}}
+"""
+        tmpl = _unicd(tmpl)
+        expected_output = """0
+1
+"""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
     def testMultilineCode(self):
         tmpl = """{{
 import sys

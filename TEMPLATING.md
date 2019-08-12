@@ -119,8 +119,10 @@ Here some examples of **invalid** code:
 
 ```{{=i }}```
 
-```{{
-=i}}```
+```
+{{
+=i}}
+```
 
 ```
 {{

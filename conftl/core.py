@@ -5,17 +5,19 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-from builtins import int
+# from builtins import int
 from future import standard_library
 from builtins import object
 import re
 from ._compat import EOL
+from ._compat import _unicd
 standard_library.install_aliases()
 
 
 re_first_eol = re.compile(r'^\n|\r\n|\r{1}')
 re_eol = re.compile(r'\n|\r\n|\r+')
 re_three_quotes = re.compile(r'"""')
+re_blockmiddle = re.compile('^(else:|elif |except:|except |finally:).*$')
 
 
 class Delimiters(object):
@@ -36,40 +38,57 @@ class Delimiters(object):
 
 
 class Tag(object):
-
-    def __init__(self, string, indent, delimiters):
+    def __init__(self, string, indent, blockindent, delimiters):
         self.data = string
+        self.indent = indent
+        self.blockindent = blockindent
         self.delimiters = delimiters
+
+        self.execstr_method_map = {'blockstart': self.execstr_blockstart,
+                                   'blockend': self.execstr_blockend,
+                                   'blockmiddle': self.execstr_blockmiddle,
+                                   'variable': self.execstr_variable,
+                                   'code': self.execstr_code,
+                                   'unknown': self.execstr_unknown}
+
         self.data = \
             self.data[self.delimiters.start_len:-self.delimiters.stop_len]
 
-        self.indent = int(indent)
-        self.indent_delta = 0
+        self.typ = 'unknown'
+        self.indent_next = self.indent
         self.rm_trail_eol = True
 
-        if self.data.startswith('='):
-            self.data = self.data[1:]
+        if self.data.endswith(':'):
+            m = re_blockmiddle.match(self.data)
+            if m:
+                self.typ = 'blockmiddle'
+                self.indent = self.blockindent
+            else:
+                self.typ = 'blockstart'
+                self.blockindent = self.indent
+                self.indent_next = self.indent + 1
+        elif self.data.startswith('='):
             self.typ = 'variable'
+            self.data = self.data[1:]
             self.rm_trail_eol = False
-        elif self.data.endswith(':'):
-            self.indent_delta = 1
-            self.typ = 'blockstart'
         elif self.data == 'pass':
-            self.data = ''
-            self.indent_delta = -1
             self.typ = 'blockend'
+            self.indent_next = max(0, self.indent - 1)
+            self.blockindent = max(0, self.blockindent - 1)
         else:
             self.typ = 'code'
 
     def execstr(self):
-        if self.typ == 'variable':
-            return self.execstr_variable()
-        if self.typ == 'code':
-            return self.execstr_code()
-        elif self.typ == 'blockstart':
-            return self.execstr_blockstart()
-        elif self.typ == 'blockend':
-            return self.execstr_blockend()
+        return self.execstr_method_map[self.typ]()
+
+    def execstr_blockstart(self):
+        return ' ' * 4 * self.indent + self.data + EOL
+
+    def execstr_blockend(self):
+        return ''
+
+    def execstr_blockmiddle(self):
+        return ' ' * 4 * self.indent + self.data + EOL
 
     def execstr_variable(self):
         return ' ' * 4 * self.indent + \
@@ -81,25 +100,22 @@ class Tag(object):
             result += ' ' * 4 * self.indent + ln + EOL
         return result
 
-    def execstr_blockstart(self):
-        return ' ' * 4 * self.indent + self.data + EOL
-
-    def execstr_blockend(self):
-        return ''
+    def execstr_unknown(self):
+        raise RuntimeError("Tag.typ = 'unknown'!")
 
 
 class Text(object):
 
     def __init__(self, string, indent, rm_first_eol):
         self.data = string
-        self.indent = int(indent)
+        self.indent = indent
         if rm_first_eol:
             self.data = re_first_eol.sub('', self.data, count=1)
 
     def execstr(self):
         if self.data:
             self.data = re_three_quotes.sub(r'\"\"\"', self.data, re.MULTILINE)
-            return ' ' * 4 * self.indent + \
+            return ' ' * self.indent * 4 + \
                    '_outstream.write("""%s""")' % (self.data) + EOL
         else:
             return ''
@@ -123,11 +139,13 @@ class Render(object):
         self.instream = instream
         self.outstream = outstream
 
-        self.indent = 0
+        self.blockindent = 0
         self.rm_trail_eol = False
 
     def __call__(self):
+        # these are needed in context
         self.context['_outstream'] = self.outstream
+        self.context['_unicd'] = _unicd
 
         buf = []
         for val in self.delimiters.re_tag.split(self.instream.read()):
@@ -135,21 +153,23 @@ class Render(object):
                 buf.append(val)
 
         self.indent = 0
+        self.blockindent = 0
         self.rm_trail_eol = False
         for i, val in enumerate(buf):
             buf[i] = self.objectify(buf[i])
 
-        execstr = 'from conftl._compat import _unicd' + EOL + \
-                  ''.join([o.execstr() for o in buf])
-        # print('execstr', execstr)
+        execstr = ''.join([o.execstr() for o in buf])
+        # print('==================')
+        # print(execstr)
         exec(execstr, self.context)
 
     def objectify(self, element):
         m = self.delimiters.re_tag.match(element)
         if m:
-            obj = Tag(element, self.indent, self.delimiters)
-            self.indent = max(0, self.indent + obj.indent_delta)
-            self.rm_trail_eol = bool(obj.rm_trail_eol)
+            obj = Tag(element, self.indent, self.blockindent, self.delimiters)
+            self.indent = obj.indent_next
+            self.blockindent = obj.blockindent
+            self.rm_trail_eol = obj.rm_trail_eol
             return obj
         else:
             return Text(element, self.indent, self.rm_trail_eol)

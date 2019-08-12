@@ -205,7 +205,7 @@ X
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testIfElse(self):
-        tmpl = """{{a == 1}}
+        tmpl = """{{a = 1}}
 {{if a == 0:}}
 X
 {{elif a == 1:}}
@@ -232,7 +232,8 @@ Y
 {{pass}}
 """
         tmpl = _unicd(tmpl)
-        expected_output = ""
+        expected_output = """Y
+"""
         instream = StringIO(tmpl)
         outstream = StringIO()
         Render(instream, outstream)()
@@ -250,6 +251,8 @@ X
         tmpl = _unicd(tmpl)
         expected_output = """0
 1
+2
+X
 """
         instream = StringIO(tmpl)
         outstream = StringIO()

@@ -1,11 +1,10 @@
 """
-See docs/render_concepts.txt
+Configuration Templating Language Core
 """
 from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-# from builtins import int
 from future import standard_library
 from builtins import object
 import re
@@ -38,18 +37,12 @@ class Delimiters(object):
 
 
 class Tag(object):
+
     def __init__(self, string, indent, blockindent, delimiters):
         self.data = string
         self.indent = indent
         self.blockindent = blockindent
         self.delimiters = delimiters
-
-        self.execstr_method_map = {'blockstart': self.execstr_blockstart,
-                                   'blockend': self.execstr_blockend,
-                                   'blockmiddle': self.execstr_blockmiddle,
-                                   'variable': self.execstr_variable,
-                                   'code': self.execstr_code,
-                                   'unknown': self.execstr_unknown}
 
         self.data = \
             self.data[self.delimiters.start_len:-self.delimiters.stop_len]
@@ -79,7 +72,7 @@ class Tag(object):
             self.typ = 'code'
 
     def execstr(self):
-        return self.execstr_method_map[self.typ]()
+        return getattr(self, 'execstr_%s' % (self.typ))()
 
     def execstr_blockstart(self):
         return ' ' * 4 * self.indent + self.data + EOL

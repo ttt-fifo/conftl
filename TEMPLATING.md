@@ -97,6 +97,7 @@ k = myfunct(2)
 # list definition
 x = [j, k, 3]
 }}
+```
 
 * **Printing a variable value to the output**
 

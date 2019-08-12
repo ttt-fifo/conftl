@@ -202,6 +202,32 @@ render
 
 NOTE: the ENV is included automatically in context only with the command line tool, rendering from Python (the next section) does not have ENV automatically in context.
 
+*How to use ENV in templates?*
+
+Many devops / sysadmin systems pass data to their underlying scripts via environment variables. As an example the following shell commands:
+
+```
+$ export SYSTEM=production
+$
+$ render
+{{if ENV['SYSTEM'] == 'production':}}
+Listen 80
+{{elif ENV['SYSTEM'] == 'ci_cd':}}
+Listen 8080
+{{elif ENV['SYSTEM'] == 'devel':}}
+Listen 8081
+{{else:}}
+{{raise RuntimeError('wrong SYSTEM')}}
+{{pass}}
+```
+(Ctr+D at the end)
+
+will give you the output based on the SYSTEM environment variable:
+
+```
+Listen 80
+```
+
 ## Rendering Template from Python
 
 There are three interfaces for rendering a template from Python: the function ```render(...)```, the class ```Render``` and the decorator ```@template(...)``` . Please see the explanation below:

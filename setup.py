@@ -13,19 +13,15 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='conftl',
-    version='0.3.0',
+    version='0.4.0',
     description='Configuration Templating Language',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/ttt-fifo/conftl',
-    author='Todor Todorov',  # Optional
+    author='Todor Todorov',
     license='BSD',
     author_email='ttodorov@null.net',
     classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Intended Audience :: Developers',
@@ -45,12 +41,12 @@ setup(
     keywords='templating configuration development sysadmin devops',
     packages=find_packages(exclude=['docs', 'examples', 'tests']),
     python_requires='>=2.7, <4',
-    entry_points={  # Optional
+    entry_points={
         'console_scripts': [
             'render=conftl.command_line:main',
         ],
     },
-    project_urls={  # Optional
+    project_urls={
         'Bug Reports': 'https://github.com/ttt-fifo/conftl/issues',
         'Source': 'https://github.com/ttt-fifo/conftl/',
     },

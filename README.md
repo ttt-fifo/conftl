@@ -6,17 +6,17 @@ Simple to learn but yet powerful language for templating your configuration file
 
 * Simple to learn - a person who has some idea of the Python syntax could dive into conftl for 15 min.
 
-* Powerful - interpretation of python code is embedded into the templating language.
-
-* Platform independent - tested under Linux and Windows, should work on other Unix platforms as well, Python 2.7 compatible, Python 3.x compatible. Please place an [issue](https://github.com/ttt-fifo/conftl/issues) in case you find problems with your platform of choice and I will try to help.
-
-* Performance - minimal code base optimized for performance.
+* Powerful - Python code in templating.
 
 * Command line tool for rendering.
 
 * Different methods for trigerring rendering from Python code.
 
 * Suitable for system administration, devops and similar roles.
+
+* Performance - minimal code base optimized for performance.
+
+* Platform independent - tested under Linux and Windows, should work on other Unix platforms as well, Python 2.7 compatible, Python 3.x compatible.
 
 ## Getting Started
 
@@ -30,9 +30,11 @@ Alternatively download the source code:
 
 ```
 git clone https://github.com/ttt-fifo/conftl
+cd conftl
+python setup.py install
 ```
 
-Make your first templating test from command line:
+Hello world from the command line:
 
 ```bash
 $ render -c "name='John Smith'"
@@ -42,7 +44,7 @@ Hello, John Smith
 
 NOTE: Write ```Hello, {{=name}}``` on stdin, followed by Enter, Ctr+D
 
-Make your first templating test in your Python REPL:
+Hello world from the Python REPL:
 
 ```python
 >>>
@@ -96,7 +98,7 @@ i = 3
 }}
 ```
 
-* **Printing a variable value to the output** is done by wrapping the variable in tags and placing = sign in front of the variable like this ```{{=myvar}}```
+* **Printing a variable value to the output** is done by tagging it and placing = sign in front of the variable like this ```{{=myvar}}```
 
 For example if ```i``` has the value of ```3``` and you put in template:
 
@@ -115,7 +117,7 @@ for i in range(0, 2):
     print('X', i)
 ```
 
-The equivalent of the above code block using the template language would be:
+The equivalent of the above code would be:
 
 ```
 {{for i in range(0, 2):}}
@@ -123,7 +125,7 @@ X {{=i}}
 {{pass}}
 ```
 
-* **You are able to pass values to template variables from outside of the template** - this is just a reminder for you to know that there are multiple methods to give 'context' to the template, e.g. assigning variable values outside of the template. About this - look the follow up sections.
+* **You are able to pass values to template variables from outside of the template** - there are multiple methods to give 'context' to the template, e.g. assigning variable values outside of the template. Look the follow up sections.
 
 ## Command Line Tool for Rendering (render)
 
@@ -137,17 +139,17 @@ will take the template from file ```templatename.tmpl``` and write the output to
 
 WARNING: filename.conf will be overwriten!!!
 
-In case input template is not given with -i, you would be expected to place template code on stdin.
+In case input template is not given by -i, you would be expected to place template code on stdin.
 
 NOTE: For Linux and other Unix systems write template code and finish it with Ctr + D
 
-NOTE: For Windows finish template code with with Ctr + z and then hit ENTER
+NOTE: For Windows finish template code with with Ctr + Z and then hit ENTER
 
-In case output filename is not given, the output will be written to stdout.
+In case the output filename (-o) is not given, the output will be written to stdout.
 
 * **Giving context variables on the command line**
 
-For example if you want to give ```i``` value of ```4``` and to use it into your template, use -c flag:
+You want to give ```i``` value of ```4``` and use it in your template. Use -c flag:
 
 ```
 render -i templatename.tmpl -o filename.conf -c i=4
@@ -159,7 +161,7 @@ For assigning values to multiple variables, just repeat -c flag multiple times:
 render -i templatename.tmpl -o filename.conf -c i=4 -c j=8 -c x=2
 ```
 
-For assigning complex variable datatypes, do not forget to wrap assignment in double quote:
+For assigning complex variable datatypes, wrap assignment in double quote like this:
 
 ```
 render -i templatename.tmpl -o filename.conf -c "mydict={'a': 1, 'b': 'string'}"
@@ -198,7 +200,7 @@ render
 ..................................
 ```
 
-NOTE: the ENV is included automatically in context only with the command line tool, using render(...) from Python does not include ENV automatically in context.
+NOTE: the ENV is included automatically in context only with the command line tool, rendering from Python (the next section) does not have ENV automatically in context.
 
 ## Rendering Template from Python
 
@@ -243,7 +245,7 @@ In case you need to use other delimiters than the default ```{{ }}```, you can c
 
 * **template decorator**
 
-If you have complex computations, which give you the context output, more convenient helper would be the template decorator. Here is an example how to use it:
+You define a function which returns the context as a dict. You decorate your function with template decorator:
 
 ```python
 from conftl import template
@@ -270,7 +272,7 @@ if __name__ == '__main__':
     template_myconf(... some args...)
 ```
 
-The possible arguments for template are
+The possible arguments for template decorator are
 
 ```python
 @template(infile=None,
@@ -281,11 +283,11 @@ The possible arguments for template are
 
 You must give eighter infile= or content= as input. You can ommit outfile= and in this case the decorated function will return the output as a string. Changing delimiters= is also possible. The function, decorated with template(...) must return dict, otherwise exception is raised.
 
-This type of complex context computation is well know by the web2py users, because this is the layout of the web2py controller.
+This type of context computation is well know by the web2py users, because this is the layout of the web2py controller.
 
 * **Render object**
 
-An object from Render class could be used in long running processes, where you can load the object in memory and use it multiple times for templating multiple files:
+An object from Render class could be used in a long running processes, when you can load the object in memory once and use it multiple times for templating multiple files:
 
 
 ```python
@@ -313,6 +315,10 @@ Take a look at the [examples](https://github.com/ttt-fifo/conftl/tree/master/exa
 
 ## Known Limitations
 
+* Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Multiple attack vectors could be used by a malicious end-user who has the possibility to execute arbitrary Python code.
+
+* In case you want to template a HTML output, you would be better off using the web2py's templating language (called [yatl](https://github.com/web2py/yatl)). Yatl has XML escaping switched on by default and also multiple HTML helper functions.
+
 * The opening code for a code block which prints clear text and vars cannot be multiline. Please **do not write this**:
 
 ```
@@ -330,10 +336,6 @@ The code **should be**:
 ...
 {{pass}}
 ```
-
-* Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Multiple attack vectors could be used by a malicious end-user who has the possibility to execute arbitrary Python code.
-
-* In case you want to template a HTML output, you would be better off using the web2py's templating language (called [yatl](https://github.com/web2py/yatl)). Yatl has XML escaping switched on by default and also multiple HTML helper functions.
 
 ## Contributing
 

@@ -6,13 +6,13 @@ from conftl import template
 
 
 @template('apache.conf.tmpl')
-def add_domains():
+def add_domains(**kwarg):
     domain = 'foo.com'
-    plusdomain_map = {"fooa.com": "192.168.34.14",
-                      "foob.com": "192.168.34.17"}
-    return dict(domain=domain, plusdomain_map=plusdomain_map)
+    return dict(domain=domain, plusdomain_map=kwarg)
 
 
-out = add_domains()
+domain_map = {"fooa.com": "192.168.34.14",
+              "foob.com": "192.168.34.17"}
+out = add_domains(**domain_map)
 
 print(out)

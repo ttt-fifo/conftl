@@ -108,7 +108,7 @@ you will receive in the output:
 
 ```3```
 
-* **Combining a Python code block with clear text and variable outputs** - you should not indent the code block as you normaly do with Python, but you should determine it with ```{{pass}}``` special keyword instead.
+* **Combining a Python code block with clear text and variable outputs** - you should not indent the code block as you normally do with Python, but you should determine it with ```{{pass}}``` special keyword instead.
 
 Whenever you write a code block into the original Python interpreter you indent the code. Lets take the following example of original Python code block:
 
@@ -208,6 +208,18 @@ There are three interfaces for rendering a template from Python: the function ``
 
 * **render(...) function**
 
+Consider the following example:
+
+```python
+>>>
+>>> from conftl import render
+>>> render(content='{{=i}}', context=dict(i=8))
+'8'
+>>>
+```
+
+As you can see, you can give the context= value, which is a dict, containing your variable data.
+
 The signature of the function follows:
 
 ```python
@@ -222,18 +234,6 @@ You can use the function by giving infile= as argument (this is the template fil
 
 Output file could be given by outfile= argument. If given, the output will be written to this file. On outfile= absence, the output is returned as string.
 
-Consider the following example:
-
-```python
->>>
->>> from conftl import render
->>> render(content='{{=i}}', context=dict(i=8))
-'8'
->>>
-```
-
-As you see, you can give the context= value, which is a dict, containing your variable data.
-
 In case you need to use other delimiters than the default ```{{ }}```, you can change the delimiters like this:
 
 ```python
@@ -245,7 +245,7 @@ In case you need to use other delimiters than the default ```{{ }}```, you can c
 
 * **template decorator**
 
-You define a function which returns the context as a dict. You decorate your function with template decorator:
+Define a function which returns the context as a dict. Decorate your function with template decorator:
 
 ```python
 from conftl import template
@@ -281,13 +281,13 @@ The possible arguments for template decorator are
           delimiters=None)
 ```
 
-You must give eighter infile= or content= as input. You can ommit outfile= and in this case the decorated function will return the output as a string. Changing delimiters= is also possible. The function, decorated with template(...) must return dict, otherwise exception is raised.
+You must give eihter infile= or content= as input. You can omit outfile= and in this case the decorated function will return the output as a string. Changing delimiters= is also possible. The function, decorated with template(...) must return dict, otherwise exception is raised.
 
 This type of context computation is well know by the web2py users, because this is the layout of the web2py controller.
 
 * **Render object**
 
-An object from Render class could be used in a long running processes, when you can load the object in memory once and use it multiple times for templating multiple files:
+An object from Render class could be used in a long running processes. Load the object in memory once and use it multiple times for templating multiple files:
 
 
 ```python
@@ -311,7 +311,7 @@ The ```instream``` and ```outstream``` should be file handles or StringIO object
 
 ## Examples
 
-Take a look at the [examples](https://github.com/ttt-fifo/conftl/tree/master/examples) directory.
+Take a look at the [examples folder](https://github.com/ttt-fifo/conftl/tree/master/examples) from the project repository.
 
 ## Known Limitations
 

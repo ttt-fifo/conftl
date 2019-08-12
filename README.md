@@ -127,6 +127,8 @@ X {{=i}}
 
 * **You are able to pass values to template variables from outside of the template** - there are multiple methods to give 'context' to the template, e.g. assigning variable values outside of the template. Look the follow up sections.
 
+* **Advanced templating topics** could be found at [TEMPLATING.md](TEMPLATING.md)
+
 ## Command Line Tool for Rendering (render)
 
 * **The render command line tool works as follows:**
@@ -344,24 +346,6 @@ Take a look at the [examples folder](https://github.com/ttt-fifo/conftl/tree/mas
 * Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Multiple attack vectors could be used by a malicious end-user who has the possibility to execute arbitrary Python code.
 
 * In case you want to template a HTML output, you would be better off using the web2py's templating language (called [yatl](https://github.com/web2py/yatl)). Yatl has XML escaping switched on by default and also multiple HTML helper functions.
-
-* The opening code for a code block which prints clear text and vars cannot be multiline. Please **do not write this**:
-
-```
-{{i = 0
-while i <= 10:}}
-...
-{{pass}}
-```
-
-The code **should be**:
-
-```
-{{i = 0}}
-{{while i <= 10:}}
-...
-{{pass}}
-```
 
 ## Contributing
 

@@ -17,7 +17,7 @@ standard_library.install_aliases()
 re_first_eol = re.compile(r'^\n|\r\n|\r{1}')
 re_eol = re.compile(r'\n|\r\n|\r+', re.MULTILINE)
 re_three_quotes = re.compile(r'"""', re.MULTILINE)
-re_blockmiddle = re.compile('^(else:|elif |except:|except |finally:).*$')
+re_blockmiddle = re.compile('^else:|elif |except:|except |finally:.*$')
 
 
 class Delimiters(object):
@@ -97,16 +97,20 @@ class Tag(object):
         return ' ' * 4 * self.indent + self.data + EOL
 
     def execstr_variable(self):
+        # _unicd is from _compat: the unicode value for the current
+        # python version
         return ' ' * 4 * self.indent + \
                '_outstream.write(_unicd(%s))' % (self.data) + EOL
 
     def execstr_code(self):
+        # only code is processed line by line
         result = ''
         for ln in re_eol.split(self.data):
             result += ' ' * 4 * self.indent + ln + EOL
         return result
 
     def execstr_unknown(self):
+        # this should never happen
         raise RuntimeError("Tag.typ = 'unknown'!")
 
 
@@ -118,6 +122,8 @@ class Text(object):
     def __init__(self, string, indent, rm_first_eol):
         self.data = string
         self.indent = indent
+        # the previous code block controls if we remove first eol in text
+        # (this is sanitize eol feature)
         if rm_first_eol:
             self.data = re_first_eol.sub('', self.data, count=1)
 
@@ -127,6 +133,7 @@ class Text(object):
         """
 
         if self.data:
+            # three double quotes are escaped
             self.data = re_three_quotes.sub(r'\"\"\"', self.data)
             return ' ' * self.indent * 4 + \
                    '_outstream.write("""%s""")' % (self.data) + EOL
@@ -181,29 +188,30 @@ class Render(object):
         self.instream = instream
         self.outstream = outstream
 
-        self.blockindent = 0
-        self.rm_trail_eol = False
-
     def __call__(self):
         """
         The code may be executed multiple times
         """
 
         # these are needed in context
+        # _unicd is the unicode representation for the current python version
         self.context['_outstream'] = self.outstream
         self.context['_unicd'] = _unicd
 
+        # split tags from text in the buffer
         buf = []
         for val in self.delimiters.re_tag.split(self.instream.read()):
             if val != '':
                 buf.append(val)
 
+        # every buffer value is converted to object
         self.indent = 0
         self.blockindent = 0
         self.rm_trail_eol = False
         for i, val in enumerate(buf):
             buf[i] = self.objectify(buf[i])
 
+        # execute the resulting python code
         execstr = ''.join([o.execstr() for o in buf])
         # print('==================')
         # print(execstr)

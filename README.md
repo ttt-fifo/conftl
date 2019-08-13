@@ -379,7 +379,7 @@ Thanks to [Massimo Di Pierro](https://github.com/mdipierro) and the [web2py](htt
 
 ## See Also
 
-Differences between conftl and yatl from the document [differences_yatl.txt](https://github.com/ttt-fifo/conftl/docs/differences_yatl.txt)
+Differences between conftl and yatl from the document [differences_yatl.txt](https://github.com/ttt-fifo/conftl/blob/master/docs/differences_yatl.txt)
 
 [web2py on github](https://github.com/web2py/web2py)
 

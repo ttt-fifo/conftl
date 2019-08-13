@@ -1,7 +1,8 @@
 Differences Between conftl and web2py's Templating Language (yatl)
 ==================================================================
 
-The templating language of web2py is called yatl. yatl does it's job very well with the HTML templating, conftl has features for textual data and does its job exactly for templating configuration files.
+The templating language of web2py is called yatl. yatl does it's job very well with the HTML templating,
+conftl has features for textual data and does its job exactly for templating configuration files.
 
 The differences between conftl and yatl
 ---------------------------------------
@@ -22,7 +23,8 @@ The differences between conftl and yatl
 
     The output: X <Enter>
 
-    In case you write the same snipped in yatl, it will produce some unneeded empty lines. In order to have the expected textual output yatl snipped should be:
+    In case you write the same snipped in yatl, it will produce some unneeded empty lines. In order to have
+    the expected textual output yatl snipped should be:
 
     {{if True:}}X{{pass}}
 
@@ -41,7 +43,8 @@ The differences between conftl and yatl
 
     (see all features described in README.md)
 
-* conftl function render(...) and decorator template(...) have arguments, which are more convenient for templating configuration files, while yatl is made for convenient usage with web frameworks.
+* conftl function render(...) and decorator template(...) have arguments, which are more convenient
+for templating configuration files, while yatl is made for convenient usage with web frameworks.
 
     Examples:
     render(infile='mytemplate.tmpl', outfile='myconf.conf')
@@ -55,13 +58,16 @@ The differences between conftl and yatl
 
 * conftl has small codebase, optimized for textual data.
 
-    I have not done performance and memory usage comparison between conftl and yatl, but conftl should be optimized better for textual data.
+    I have not done performance and memory usage comparison between conftl and yatl, but conftl should be
+    optimized better for textual data.
 
 * yatl is optimized for HTML, conftl is not
 
-    The XML escaping and function arguments and fucntion output in yatl are there for a reason. yatl has multiple HTML helpers. It is best suited for usage with web frameworks.
+    The XML escaping and function arguments and fucntion output in yatl are there for a reason.
+    yatl has multiple HTML helpers. It is best suited for usage with web frameworks.
 
-    All features of conftl are towards usage with configuration files templating. Suitable for sysadmins, devops and similar roles.
+    All features of conftl are towards usage with configuration files templating. Suitable for sysadmins,
+    devops and similar roles.
 
 
 Conclusion

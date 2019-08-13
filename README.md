@@ -127,7 +127,7 @@ X {{=i}}
 
 * **You are able to pass values to template variables from outside of the template** - there are multiple methods to give 'context' to the template, e.g. assigning variable values outside of the template. Look the follow up sections.
 
-* **Advanced templating topics** could be found at [TEMPLATING.md](TEMPLATING.md)
+* **Advanced templating topics** could be found at [TEMPLATING.md](https://github.com/ttt-fifo/conftl/blob/master/TEMPLATING.md)
 
 ## Command Line Tool for Rendering (render)
 

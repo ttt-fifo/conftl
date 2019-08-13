@@ -129,6 +129,10 @@ X {{=i}}
 
 * **Advanced templating topics** could be found at [TEMPLATING.md](https://github.com/ttt-fifo/conftl/blob/master/TEMPLATING.md)
 
+## Examples
+
+Take a look at the [examples folder](https://github.com/ttt-fifo/conftl/tree/master/examples) from the project repository.
+
 ## Command Line Tool for Rendering (render)
 
 * **The render command line tool works as follows:**
@@ -340,10 +344,6 @@ rndr.outstream.close()
 ```
 
 The ```instream``` and ```outstream``` should be file handles or StringIO objects.
-
-## Examples
-
-Take a look at the [examples folder](https://github.com/ttt-fifo/conftl/tree/master/examples) from the project repository.
 
 ## Known Limitations
 

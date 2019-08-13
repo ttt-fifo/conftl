@@ -230,6 +230,10 @@ will give you the output based on the SYSTEM environment variable:
 Listen 80
 ```
 
+* **Command line tool help**
+
+See ```render -h```
+
 ## Rendering Template from Python
 
 There are three interfaces for rendering a template from Python: the function ```render(...)```, the class ```Render``` and the decorator ```@template(...)``` . Please see the explanation below:

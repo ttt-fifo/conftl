@@ -10,8 +10,8 @@ Z
 {{somefunct()}}
 {{except Exception as e:}}  <-- blockmiddle
 X: {{=str(e)}}
-{{finally:}}
-{{f.close()}}               <-- blockmiddle
+{{finally:}}                <-- blockmiddle
+{{f.close()}}
 {{pass}}                    <-- blockend
 
 {{def myfunct():}}          <-- blockstart

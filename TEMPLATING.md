@@ -133,7 +133,7 @@ if True:
 
 * **Python code blocks**
 
-NOTE: whenever you need a Python code blocks, which do not print anything to output, use multiline Python code as explained above.
+NOTE: whenever you need Python code blocks, which do not print anything to output, use multiline Python code as explained above.
 
 The following is needed whenever you need to combine Python code blocks with printing clear text and/or variable outputs.
 
@@ -182,6 +182,14 @@ Here is one block opening, which is **invalid**:
 ```
 {{i = 0
 while i <= 3:}}
+...
+```
+
+Here is how the above code will become **valid**:
+
+```
+{{i = 0}}
+{{while i <= 3:}}
 ...
 ```
 

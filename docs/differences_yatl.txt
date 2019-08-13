@@ -1,7 +1,7 @@
 Differences Between conftl and web2py's Templating Language (yatl)
 ==================================================================
 
-The templating language of web2py is called yatl. yatl does it's job very well with the HTML templating,
+TL;DR; The templating language of web2py is called yatl. yatl does it's job very well with the HTML templating,
 conftl has features for textual data and does its job exactly for templating configuration files.
 
 The differences between conftl and yatl
@@ -13,6 +13,8 @@ The differences between conftl and yatl
 
     yatl output of {{=s}} will be: "&lt; mystring &gt;"
     contl output of {{=s}} will be as you expect: "< mystring >"
+
+    We do not need XML excaping while templating configuration files.
 
 * conftl does some end of line sanitization for textual data:
 
@@ -32,7 +34,7 @@ The differences between conftl and yatl
 
 * conftl provides command line tool and you may template your configuration files without writing Python scripts:
 
-    render -i mytemplate.tmpl -o myconfigurationfile.conf
+    $ render -i mytemplate.tmpl -o myconfigurationfile.conf
 
     Features:
         - input template file or template code on stdin
@@ -73,5 +75,5 @@ for templating configuration files, while yatl is made for convenient usage with
 Conclusion
 ----------
 
-Use conftl where you need to template text, and in particular configuration files.
+Use conftl whenever you need to template text, and in particular configuration files.
 Use yatl for HTML data and for web frameworks integration.

@@ -134,7 +134,7 @@ class Text(object):
             # three double quotes are escaped
             self.data = re_three_quotes.sub(r'\"\"\"', self.data)
             return ' ' * self.indent * 4 + \
-                   '_outstream.write("""%s""")' % (self.data) + EOL
+                   '_outstream.write(_unicod("""%s"""))' % (self.data) + EOL
         else:
             return ''
 

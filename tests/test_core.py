@@ -100,23 +100,23 @@ text lorem """ ipsum text
 clear text clear text
 texting clearly
 '''
-        expected_output = tmpl
         tmpl = _unicod(tmpl)
+        expected_output = tmpl
         instream = StringIO(tmpl)
         outstream = StringIO()
         Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testClearTextWithUnicode(self):
-        tmpl = u'''
+        tmpl = '''XXXXXXXXXXX
 lorem ipsum dolor sim amet
 Моето име е Тодор clear txt continues
 lorem Здравей, свят!
 clear text clear text
 texting clearly
 '''
-        expected_output = tmpl
         tmpl = _unicod(tmpl)
+        expected_output = tmpl
         instream = StringIO(tmpl)
         outstream = StringIO()
         Render(instream, outstream)()

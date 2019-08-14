@@ -10,6 +10,7 @@ from future import standard_library
 from .core import Render
 from ._compat import _unicod
 from ._compat import StringIO
+# from ._compat import _open
 standard_library.install_aliases()
 
 

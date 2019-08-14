@@ -3,6 +3,8 @@
 import unittest
 import os
 from conftl.render_fn import render
+from conftl._compat import PY2
+import codecs
 
 TMP = '/tmp'
 
@@ -38,10 +40,12 @@ class TestRenderFunction(unittest.TestCase):
 
     def testInfileUnicode(self):
         tmpl = "Тодор"
-        expected_output = "Тодор"
+        if PY2:
+            tmpl = tmpl.decode('utf-8')
+        expected_output = tmpl
 
         infile = os.path.join(TMP, 'infileunicode_%s.tmpl' % (os.getpid()))
-        with open(infile, 'w') as f:
+        with codecs.open(infile, 'w', 'utf-8') as f:
             f.write(tmpl)
 
         output = render(infile)
@@ -53,6 +57,20 @@ class TestRenderFunction(unittest.TestCase):
     def testOutfile(self):
         tmpl = "X"
         expected_output = "X"
+        outfile = os.path.join(TMP, 'outfile_%s.tmpl' % (os.getpid()))
+
+        render(content=tmpl, outfile=outfile)
+
+        with open(outfile, 'r') as f:
+            output = f.read()
+
+        os.remove(outfile)
+
+        self.assertEqual(output, expected_output)
+
+    def testOutfileUnicode(self):
+        tmpl = "Тодор"
+        expected_output = "Тодор"
         outfile = os.path.join(TMP, 'outfile_%s.tmpl' % (os.getpid()))
 
         render(content=tmpl, outfile=outfile)

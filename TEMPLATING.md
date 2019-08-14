@@ -113,7 +113,17 @@ Some interesting examples, which are **valid**:
 
 ```{{=i+1}}```
 
-Here some examples of **invalid** code:
+Due to a parser limitation this code will be **invalid**:
+
+```{{={'a': 1, 'b': 2}}}```
+
+(see the three }}} at the end)
+
+This trick will make the previous example **valid**:
+
+```{{=dict(a=1, b=2)}}```
+
+Here other examples of **invalid** code:
 
 ```{{ = i}}```
 

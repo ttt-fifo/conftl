@@ -108,7 +108,7 @@ texting clearly
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testClearTextWithUnicode(self):
-        tmpl = '''XXXXXXXXXXX
+        tmpl = '''
 lorem ipsum dolor sim amet
 Моето име е Тодор clear txt continues
 lorem Здравей, свят!
@@ -136,11 +136,66 @@ X
         Render(instream, outstream)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
+    def testCodeTextUnicode(self):
+        tmpl = """{{for i in range(0, 2):}}
+свят
+{{pass}}
+"""
+        tmpl = _unicod(tmpl)
+        expected_output = _unicod("""свят
+свят
+""")
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
     def testVariable(self):
         tmpl = "{{=i}}"
         tmpl = _unicod(tmpl)
         context = dict(i=100)
         expected_output = "100"
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream, context=context)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
+    def testVariableUnicode(self):
+        tmpl = "{{=i}}"
+        tmpl = _unicod(tmpl)
+        context = dict(i="свят")
+        # ??? python2 to convert to unicode output ???
+        expected_output = _unicod("свят")
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream, context=context)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
+    def testVariableFunction(self):
+        tmpl = "{{=str(i)}}"
+        tmpl = _unicod(tmpl)
+        context = dict(i=1)
+        expected_output = "1"
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream, context=context)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
+    def testVariableList(self):
+        tmpl = "{{=[1, 2, 3]}}"
+        tmpl = _unicod(tmpl)
+        context = dict(i=1)
+        expected_output = "[1, 2, 3]"
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream, context=context)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
+    def testVariableDict(self):
+        tmpl = "{{=dict(a=2, b=3)}}"
+        tmpl = _unicod(tmpl)
+        context = dict(i=1)
+        expected_output = "{'a': 2, 'b': 3}"
         instream = StringIO(tmpl)
         outstream = StringIO()
         Render(instream, outstream, context=context)()

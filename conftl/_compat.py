@@ -13,10 +13,20 @@ if PY2:
     from StringIO import StringIO
 
     def _unicod(data):
-        if isinstance(data, unicode):
+        typ = type(data)
+        if typ == unicode:
             return data
+        elif typ == str:
+            return data.decode('utf-8')
         else:
             return str(data).decode('utf-8')
+
 else:
     from io import StringIO
-    _unicod = str
+
+    def _unicod(data):
+        typ = type(data)
+        if typ == str:
+            return data
+        else:
+            return str(data)

@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from builtins import open
 from future import standard_library
 from .core import Render
-from ._compat import _unicd
+from ._compat import _unicod
 from ._compat import StringIO
 standard_library.install_aliases()
 
@@ -31,7 +31,7 @@ def render(infile=None, outfile=None, context=None, content=None,
     if infile:
         instream = open(infile, 'r')
     elif content:
-        content = _unicd(content)
+        content = _unicod(content)
         instream = StringIO(content)
         del content
     else:

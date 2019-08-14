@@ -1,4 +1,5 @@
 #!/bin/env python3
+# -*- coding: utf-8 -*-
 import unittest
 import os
 from conftl.render_fn import render
@@ -26,6 +27,20 @@ class TestRenderFunction(unittest.TestCase):
         expected_output = "X"
 
         infile = os.path.join(TMP, 'infile_%s.tmpl' % (os.getpid()))
+        with open(infile, 'w') as f:
+            f.write(tmpl)
+
+        output = render(infile)
+
+        os.remove(infile)
+
+        self.assertEqual(output, expected_output)
+
+    def testInfileUnicode(self):
+        tmpl = "Тодор"
+        expected_output = "Тодор"
+
+        infile = os.path.join(TMP, 'infileunicode_%s.tmpl' % (os.getpid()))
         with open(infile, 'w') as f:
             f.write(tmpl)
 

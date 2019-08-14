@@ -10,7 +10,7 @@ from future import standard_library
 from builtins import object
 import re
 from ._compat import EOL
-from ._compat import _unicd
+from ._compat import _unicod
 standard_library.install_aliases()
 
 
@@ -50,10 +50,8 @@ class Tag(object):
         self.data = string
         self.indent = indent
         self.blockindent = blockindent
-        self.delimiters = delimiters
 
-        self.data = \
-            self.data[self.delimiters.start_len:-self.delimiters.stop_len]
+        self.data = self.data[delimiters.start_len:-delimiters.stop_len]
 
         self.typ = 'unknown'
         self.indent_next = self.indent
@@ -97,10 +95,10 @@ class Tag(object):
         return ' ' * 4 * self.indent + self.data + EOL
 
     def execstr_variable(self):
-        # _unicd is from _compat: the unicode value for the current
+        # _unicod is from _compat: the unicode value for the current
         # python version
         return ' ' * 4 * self.indent + \
-               '_outstream.write(_unicd(%s))' % (self.data) + EOL
+               '_outstream.write(_unicod(%s))' % (self.data) + EOL
 
     def execstr_code(self):
         # only code is processed line by line
@@ -194,9 +192,9 @@ class Render(object):
         """
 
         # these are needed in context
-        # _unicd is the unicode representation for the current python version
+        # _unicod is the unicode representation for the current python version
         self.context['_outstream'] = self.outstream
-        self.context['_unicd'] = _unicd
+        self.context['_unicod'] = _unicod
 
         # split tags from text in the buffer
         buf = []

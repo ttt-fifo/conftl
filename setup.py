@@ -9,11 +9,13 @@ here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    # loose first line - the img
+    f.readline()
     long_description = f.read()
 
 setup(
     name='conftl',
-    version='0.5.2',
+    version='0.5.3',
     description='Configuration Templating Language',
     long_description=long_description,
     long_description_content_type='text/markdown',

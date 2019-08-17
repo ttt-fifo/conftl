@@ -380,7 +380,7 @@ See [LICENSE](https://github.com/ttt-fifo/conftl/blob/master/LICENSE) for detail
 
 Thanks to [Massimo Di Pierro](https://github.com/mdipierro) and the [web2py](https://github.com/web2py) team for the inspiration.
 
-Logo: [arrow](https://longfordpc.com/) [server](https://www.vrt.com.au/downloads/vrt-network-equipment) [icons](http://hawcons.com/)
+Logo: [server](https://www.vrt.com.au/downloads/vrt-network-equipment), [icons](http://hawcons.com/), [arrow](https://longfordpc.com/)
 
 ## See Also
 

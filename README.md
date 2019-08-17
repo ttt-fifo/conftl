@@ -64,6 +64,8 @@ Python 2.7 or Python 3.x
 
 Please place an [issue](https://github.com/ttt-fifo/conftl/issues) in case the current implementation is not working with your platform and I will try to help.
 
+Python Modules: future
+
 ## Templating Kickstart
 
 * **Clear text from the template is printed to the output as is**

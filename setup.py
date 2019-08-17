@@ -13,7 +13,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='conftl',
-    version='0.5.1',
+    version='0.5.2',
     description='Configuration Templating Language',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -41,6 +41,7 @@ setup(
     keywords='templating configuration development sysadmin devops',
     packages=find_packages(exclude=['docs', 'examples', 'tests', 'dist']),
     python_requires='>=2.7, <4',
+    install_requires=['future'],
     entry_points={
         'console_scripts': [
             'render=conftl.command_line:main',

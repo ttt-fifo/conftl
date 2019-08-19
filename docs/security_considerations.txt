@@ -1,0 +1,78 @@
+Security Considerations
+=======================
+
+The main feature of conftl is that it can embed arbitrary Python code.
+This has but one downfall: the template and the context should be coming
+only from trusted soruces. Arbitrary code could be executed not only in
+the template, but it could be pushed via context and executed later on during
+rendering. The following security scheme should be considered:
+
+
+   Trusted Source      Trusted Source
+         |                   |
+         |                   |
+        \/                  \/
+  writing template    input context
+  code {{...}}        variables {a=...}
+   |                 /
+   |                /
+   |               /
+  \/              \/
++-----------------+                 +-----------------+
+| Template {{ }}  |                 | Lorem ipsum     |
+|                 |                 | Lorem ipsum     |
+|                 |  render(...)    | Text, text      |            Trusted
+|                 |---------------> |                 | ---------> and/or
+|                 |                 |                 |            Untrusted
+|                 |                 |                 |            Recipient
+|                 |                 |                 |
+|                 |                 |                 |
++-----------------+                 +-----------------+
+
+
+
+
+Meaning of a 'Trusted Source'
+=============================
+
+    * This may be a skilled System Administrator. SysAdmins are usually trusted
+      with administrative privileges and they are able to execute arbitrary code
+      anyway.
+
+    * If using automated input for template and context, the input should be
+      'sanitized' by other libraries first and it should be strictly defined
+      prior rendering.
+
+
+
+Example with dangerous template code
+====================================
+
+!!! PLEASE DO NOT RUN THIS CODE !!!
+
+{{
+import os
+os.system("rm -rf /")
+}}
+
+
+
+Example with dangerous context
+==============================
+
+!!! PLEASE DO NOT RUN THIS CODE !!!
+
+#-----------
+class Malformed:
+
+    def __str__(self):
+        os.system("rm -rf /")
+        return "You have been erased!"
+
+malformed = Malformed()
+
+render(content="{{=malformed}}", context=dict(malformed=malformed))
+#-----------
+
+Explanation: the render function will try to convert the variable 'malformed'
+             to str and the dangerous code will be eventually executed.

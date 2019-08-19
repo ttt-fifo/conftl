@@ -14,13 +14,13 @@ rendering. The following security scheme should be considered:
         \/                  \/
   writing template    input context
   code {{...}}        variables {a=...}
-   |                 /
-   |                /
-   |               /
-  \/              \/
-+-----------------+                 +-----------------+
-| Template {{ }}  |                 | Lorem ipsum     |
-|                 |                 | Lorem ipsum     |
+   |                        |
+   |                        |
+   |                        |
+  \/                        |
++-----------------+         |       +-----------------+
+| Template {{ }}  |         |       | Lorem ipsum     |
+|                 |         \/      | Lorem ipsum     |
 |                 |  render(...)    | Text, text      |            Trusted
 |                 |---------------> |                 | ---------> and/or
 |                 |                 |                 |            Untrusted

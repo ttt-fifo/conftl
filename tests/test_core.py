@@ -192,7 +192,11 @@ X
         self.assertEqual(outstream.getvalue(), expected_output)
 
     def testVariableFunction(self):
-        tmpl = "{{=str(i)}}"
+        tmpl = """{{
+def one():
+     return 1
+}}
+{{=one()}}"""
         tmpl = _unicod(tmpl)
         context = dict(i=1)
         expected_output = "1"

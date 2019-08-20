@@ -11,7 +11,6 @@ from builtins import object
 import re
 from ._compat import EOL
 from ._compat import _unicod
-from .default_delimiters import DEFAULT_DELIMITERS
 standard_library.install_aliases()
 
 
@@ -29,7 +28,7 @@ class Delimiters(object):
     Represents the tag delimiters
     """
 
-    def __init__(self, string=DEFAULT_DELIMITERS):
+    def __init__(self, string="{{ }}"):
         start, stop = string.split(' ')
 
         self.start = start

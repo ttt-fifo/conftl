@@ -18,7 +18,10 @@ standard_library.install_aliases()
 re_first_eol = re.compile(r'^\n|\r\n|\r{1}')
 re_eol = re.compile(r'\n|\r\n|\r+', re.MULTILINE)
 re_three_quotes = re.compile(r'"""', re.MULTILINE)
-re_blockmiddle = re.compile('^else:|elif |except:|except |finally:.*$')
+re_block_line = re.compile(r'^\ *?([^\ ]{1}.*?):\ *$')
+re_blockmiddle_line = re.compile('^else:|elif |except:|except |finally:.*$')
+re_variable = re.compile(r'^\ *?\=(.*?)\ *$')
+re_blockend = re.compile(r'^\ *?pass\ *$')
 
 
 class Delimiters(object):
@@ -58,8 +61,8 @@ class Tag(object):
         self.indent_next = self.indent
         self.rm_trail_eol = True
 
-        if self.data.endswith(':'):
-            m = re_blockmiddle.match(self.data)
+        if self.detect_block_line():
+            m = re_blockmiddle_line.match(self.data)
             if m:
                 self.typ = 'blockmiddle'
                 self.indent = self.blockindent
@@ -67,16 +70,57 @@ class Tag(object):
                 self.typ = 'blockstart'
                 self.blockindent = self.indent
                 self.indent_next = self.indent + 1
-        elif self.data.startswith('='):
+        elif self.detect_variable():
             self.typ = 'variable'
-            self.data = self.data[1:]
             self.rm_trail_eol = False
-        elif self.data == 'pass':
+        elif self.detect_blockend():
             self.typ = 'blockend'
             self.indent_next = max(0, self.indent - 1)
             self.blockindent = max(0, self.blockindent - 1)
         else:
             self.typ = 'code'
+
+    def detect_block_line(self):
+        """
+        Detects if this is block line (indentation start), for example:
+        {{for i in mylist:}}
+
+        Also sanitizes self.data, removing starting/trailing spaces, example:
+        {{ for i in mylist: }}
+        """
+        m = re_block_line.match(self.data)
+        if m:
+            self.data = m.group(1) + ':'
+            return True
+        return False
+
+    def detect_variable(self):
+        """
+        Detects if this is a variable to print to output, for example:
+        {{=myvar}}
+
+        Also sanitizes self.data, removing starting/trailing spaces, example:
+        {{ = myvar }}
+        """
+        m = re_variable.match(self.data)
+        if m:
+            self.data = m.group(1).lstrip(' ')
+            return True
+        return False
+
+    def detect_blockend(self):
+        """
+        Detects if this is keyword for block ending, for example:
+        {{pass}}
+
+        Also sanitizes self.data, removing starting/trailing spaces, example:
+        {{  pass  }}
+        """
+        m = re_blockend.match(self.data)
+        if m:
+            self.data = 'pass'
+            return True
+        return False
 
     def execstr(self):
         """

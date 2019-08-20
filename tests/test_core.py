@@ -40,8 +40,28 @@ class TestRenderConcepts(unittest.TestCase):
         Render(instream, outstream, context=context)()
         self.assertEqual(outstream.getvalue(), expected_output)
 
+    def testUnindentRelaxedSyntax(self):
+        tmpl = "{{  pass   }}"
+        tmpl = _unicod(tmpl)
+        expected_output = ""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
     def testIndentation(self):
         tmpl = """{{if True:}}
+{{True}}
+{{pass}}"""
+        tmpl = _unicod(tmpl)
+        expected_output = ""
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
+    def testIndentationRelaxedSyntax(self):
+        tmpl = """{{  if True :  }}
 {{True}}
 {{pass}}"""
         tmpl = _unicod(tmpl)
@@ -255,6 +275,16 @@ lorem ipsum {{=i}} texting
         context = dict(i=100)
         expected_output = """lorem ipsum 100 texting
 """
+        instream = StringIO(tmpl)
+        outstream = StringIO()
+        Render(instream, outstream, context=context)()
+        self.assertEqual(outstream.getvalue(), expected_output)
+
+    def testVariableRelaxedSyntax(self):
+        tmpl = "{{ = i }}"
+        tmpl = _unicod(tmpl)
+        context = dict(i=100)
+        expected_output = "100"
         instream = StringIO(tmpl)
         outstream = StringIO()
         Render(instream, outstream, context=context)()

@@ -348,6 +348,22 @@ rndr.outstream.close()
 
 The ```instream``` and ```outstream``` should be file handles or StringIO objects.
 
+## Changing Delimiters Globally
+
+Changing delimiters temporarily is always possible with passing delimiters= keyword to the functions or -d to the command line tool. What if you want to change the delimiters globally?
+
+Navigate to the directory where conftl package is installed (usually python's site-packages) and find the file default_delimiters.py. Originally the file content is:
+
+```python
+DEFAULT_DELIMITERS = "{{ }}"
+```
+
+Change the file content to whatever delimiters suits you, for example:
+
+```python
+DEFAULT_DELIMITERS = "{% %}"
+```
+
 ## Known Limitations
 
 * Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Multiple attack vectors could be used by a malicious end-user who has the possibility to execute arbitrary Python code. See [security_considerations.txt](https://github.com/ttt-fifo/conftl/blob/master/docs/security_considerations.txt)

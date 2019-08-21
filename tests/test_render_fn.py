@@ -54,6 +54,20 @@ class TestRenderFunction(unittest.TestCase):
 
         self.assertEqual(output, expected_output)
 
+    def testPath(self):
+        tmpl = "X"
+        expected_output = "X"
+
+        infile = os.path.join(TMP, 'infile_%s.tmpl' % (os.getpid()))
+        with open(infile, 'w') as f:
+            f.write(tmpl)
+
+        output = render(infile, path=[TMP])
+
+        os.remove(infile)
+
+        self.assertEqual(output, expected_output)
+
     def testOutfile(self):
         tmpl = "X"
         expected_output = "X"

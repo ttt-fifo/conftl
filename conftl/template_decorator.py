@@ -29,7 +29,7 @@ class template(object):
     """
 
     def __init__(self, infile=None, outfile=None, content=None,
-                 delimiters=None):
+                 delimiters=None, path=None):
 
         if not infile and not content:
             raise RuntimeError("infile or content is needed to template")

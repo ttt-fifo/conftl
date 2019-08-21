@@ -11,6 +11,7 @@ from builtins import object
 import re
 from ._compat import EOL
 from ._compat import _unicod
+from .defaults import DELIMITERS
 standard_library.install_aliases()
 
 
@@ -28,7 +29,7 @@ class Delimiters(object):
     Represents the tag delimiters
     """
 
-    def __init__(self, string="{{ }}"):
+    def __init__(self, string=DELIMITERS):
         start, stop = string.split(' ')
 
         self.start = start
@@ -192,6 +193,7 @@ class Render(object):
         outstream: output stream, should be file handle like object
         context: execution context, e.g. variables exported to template
         delimiters: tag delimiters, defaulting to "{{ }}"
+                    Delimiters can be changed globally from defaults.py
 
     Usage:
         # create the object once

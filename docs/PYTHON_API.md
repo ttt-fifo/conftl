@@ -1,16 +1,23 @@
-* **render(...) function**
+# Configuration Templating Language Python API
 
-Consider the following example:
+Conftl is a pure Python implementation, it embeds Python syntax in the template and of course it has an Python API to trigger templating from Python scripts. There are three ways of interaction:
+
+* Using ```render(...)``` function to render a template
+
+* Using an object of the ```Render``` class
+
+* Using ```@template(...)``` decorator to decorate a function
+
+## render(...) function
+
+An example from a python REPL would be:
 
 ```python
->>>
 >>> from conftl import render
 >>> render(content='{{=i}}', context=dict(i=8))
 '8'
 >>>
 ```
-
-As you can see, you can give the context= value, which is a dict, containing your variable data.
 
 The signature of the function follows:
 
@@ -19,7 +26,8 @@ render(infile=None,
        outfile=None,
        context=None,
        content=None,
-       delimiters=None)
+       delimiters=None,
+       path=None)
 ```
 
 You can use the function by giving infile= as argument (this is the template file). If not given, you should give the content= value - this would be a string with the template content.
@@ -35,7 +43,40 @@ In case you need to use other delimiters than the default ```{{ }}```, you can c
 >>>
 ```
 
-* **template decorator**
+The default delimiters may be changed globally by editing conftl/defaults.py
+
+The path= argument is a list of template search paths. They will be added to the default search path.
+
+The default search path is $HOME/templates, but this may be changed by editing conftl/defaults.py.
+
+## Object from Class Render
+
+An object from Render class could be used in a long running processes. Load the object in memory once and use it multiple times for templating multiple files:
+
+
+```python
+from conftl import Render
+
+rndr = Render()
+
+# ... use it multiple times like this
+rndr.instream = open('filename.tmpl', 'r')
+rndr.outstream = open('otherfile.conf', 'w')
+rndr.context = dict(i=..., j=..., somevar='...')
+
+rndr()
+
+rndr.instream.close()
+rndr.outstream.close()
+# ....
+```
+
+The ```instream``` and ```outstream``` should be file handles or StringIO objects.
+
+
+## Template Decorator
+
+The template decorator may be used to develop set of functions as a framework for templating your configuration files. The idea is well known for the web2py users, because this is how web2py's controller works.
 
 Define a function which returns the context as a dict. Decorate your function with template decorator:
 
@@ -70,35 +111,10 @@ The possible arguments for template decorator are
 @template(infile=None,
           outfile=None,
           content=None,
-          delimiters=None)
+          delimiters=None,
+          path=None)
 ```
 
-You must give eihter infile= or content= as input. You can omit outfile= and in this case the decorated function will return the output as a string. Changing delimiters= is also possible. The function, decorated with template(...) must return dict, otherwise exception is raised.
+You must give eihter infile= or content= as input. You can omit outfile= and in this case the decorated function will return the output as a string. Changing delimiters= and template search path= is also possible. The function, decorated with template(...) must return dict, otherwise exception is raised.
 
-This type of context computation is well know by the web2py users, because this is the layout of the web2py controller.
-
-* **Render object**
-
-An object from Render class could be used in a long running processes. Load the object in memory once and use it multiple times for templating multiple files:
-
-
-```python
-from conftl import Render
-
-rndr = Render()
-
-# ... use it multiple times like this
-rndr.instream = open('filename.tmpl', 'r')
-rndr.outstream = open('otherfile.conf', 'w')
-rndr.context = dict(i=..., j=..., somevar='...')
-
-rndr()
-
-rndr.instream.close()
-rndr.outstream.close()
-# ....
-```
-
-The ```instream``` and ```outstream``` should be file handles or StringIO objects.
-
-
+The default delimiters and template search path may be changed globally by editing conftl/defaults.py

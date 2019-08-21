@@ -11,29 +11,8 @@ from .core import Render
 from ._compat import _unicod
 from ._compat import StringIO
 from .defaults import TEMPLATE_PATH
-import os
-import os.path
+from ._open_infile import _open_infile
 standard_library.install_aliases()
-
-
-def _open_infile(infile, path):
-    """
-    Searches template file in path and tries to open it
-    """
-
-    try:
-        return open(infile, 'r')
-    except Exception:
-        pass
-
-    for p in path:
-        try:
-            return open(os.path.join(p, infile), 'r')
-        except Exception:
-            pass
-
-    raise RuntimeError("Cannot find template '%s' in path '%s'" %
-                       (infile, ':'.join(path)))
 
 
 def render(infile=None, outfile=None, context=None, content=None,

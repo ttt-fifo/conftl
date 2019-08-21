@@ -71,7 +71,7 @@ Python Modules: future
 As conftl embeds Python syntax in template, the prerequisite is to know the basic Python syntax.
 After accomplishing this prerequisite, the one must remember only the following three rules:
 
-**Rule 1)** Python code must be enclosed in tags ```{{...}}```
+**Rule 1)** Python code should be enclosed in tags ```{{...}}```
 
 ```python
 TEMPLATE                    | WILL OUTPUT
@@ -92,7 +92,7 @@ NOTE: this Python code does not output anything, just imports, defines function,
 ```python
 TEMPLATE                    | WILL OUTPUT
 ------------------------------------------
-{{for i in range(0, 10):}}  | Hi, there!
+{{for i in range(0, 3):}}   | Hi, there!
 Hi, there!                  | Hi, there!
 {{pass}}                    | Hi, there!
 ------------------------------------------
@@ -103,7 +103,7 @@ Hi, there!                  | Hi, there!
 ```python
 TEMPLATE                    | WILL OUTPUT
 ------------------------------------------
-{{for i in range(0, 10):}}  | 0 Hi, there!
+{{for i in range(0, 3):}}   | 0 Hi, there!
 {{=i}} Hi, there!           | 1 Hi, there!
 {{pass}}                    | 2 Hi, there!
 ------------------------------------------
@@ -113,7 +113,7 @@ For advanced syntax description see [TEMPLATE_SYNTAX.md](https://github.com/ttt-
 
 ## Examples
 
-There is no better knowledge than the real code. Take a look at the [examples folder](https://github.com/ttt-fifo/conftl/blob/master/examples)
+Take a look at the [examples folder](https://github.com/ttt-fifo/conftl/blob/master/examples) for catching conftl in action.
 
 ## Command Line Tool for Rendering (render)
 
@@ -138,7 +138,7 @@ The API description could be found here: [PYTHON_API.md](https://github.com/ttt-
 
 * Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Multiple attack vectors could be used by a malicious end-user who has the possibility to execute arbitrary Python code. See [security_considerations.txt](https://github.com/ttt-fifo/conftl/blob/master/docs/security_considerations.txt)
 
-* In case you want to template a HTML output, you would be better off using other templating languages:
+* In case you want to template some HTML output, you would be better off using other templating languages:
 
 web2py's templating language called [yatl](https://github.com/web2py/yatl).
 
@@ -147,6 +147,7 @@ jinja
 cheetah
 
 The templating languages above have HTML escaping switched on by default, helper functions and other features suitable for web services.
+
 ## Contributing
 
 Testing implementation on different platforms.

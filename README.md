@@ -66,311 +66,108 @@ Please place an [issue](https://github.com/ttt-fifo/conftl/issues) in case the c
 
 Python Modules: future
 
-## Templating Kickstart
+## Template Syntax Quickstart
 
-* **Clear text from the template is printed to the output as is**
+As conftl embeds Python syntax in template, the prerequisite is to know the basic Python syntax.
+After accomplishing this prerequisite, the one must remember only the following three rules:
 
-```
-lorem ipsum dolor sim amet
-text clear lorem ipsum
-```
-
-will go exactly the same into the output
-
-```
-lorem ipsum dolor sim amet
-text clear lorem ipsum
-```
-
-* **Python code in template should be written using tags** ```{{ ...code... }}```
-
-For example if you would like to assign a value ```3``` to ```i```, you can do it using the following syntax:
-
-```{{i = 3}}```
-
-You could also write multiline Python code as well - like the following example:
-
-```
-{{
-import sys
-
-def one():
-    return 1
-
-i = 3
-}}
-```
-
-* **Printing a variable value to the output** is done by tagging it and placing = sign in front of the variable like this ```{{=myvar}}```
-
-For example if ```i``` has the value of ```3``` and you put in template:
-
-```{{=i}}```
-
-you will receive in the output:
-
-```3```
-
-* **Combining a Python code block with clear text and variable outputs** - you should not indent the code block as you normally do with Python, but you should determine it with ```{{pass}}``` special keyword instead.
-
-Whenever you write a code block into the original Python interpreter you indent the code. Lets take the following example of original Python code block:
+**Rule 1)** Python code must be enclosed in tags ```{{...}}```
 
 ```python
-for i in range(0, 2):
-    print('X', i)
+TEMPLATE                    | WILL OUTPUT
+------------------------------------------
+{{                          |
+import sys                  |
+def one():                  |
+    return 1                |
+i = 3                       |
+}}                          |
+------------------------------------------
 ```
 
-The equivalent of the above code would be:
+NOTE: this Python code does not output anything, just imports, defines function, assigns variable.
 
+**Rule 2)** Python blocks must end with the keyword ```{{pass}}```
+
+```python
+TEMPLATE                    | WILL OUTPUT
+------------------------------------------
+{{for i in range(0, 10):}}  | Hi, there!
+Hi, there!                  | Hi, there!
+{{pass}}                    | Hi, there!
+------------------------------------------
 ```
-{{for i in range(0, 2):}}
-X {{=i}}
-{{pass}}
+
+**Rule 3)** Variables are printed to output enclosed in tags and prepended with = like ```{{=i}}```
+
+```python
+TEMPLATE                    | WILL OUTPUT
+------------------------------------------
+{{for i in range(0, 10):}}  | 0 Hi, there!
+{{=i}} Hi, there!           | 1 Hi, there!
+{{pass}}                    | 2 Hi, there!
+------------------------------------------
 ```
 
-* **You are able to pass values to template variables from outside of the template** - there are multiple methods to give 'context' to the template, e.g. assigning variable values outside of the template. Look the follow up sections.
-
-* **Advanced templating topics** could be found at [TEMPLATING.md](https://github.com/ttt-fifo/conftl/blob/master/TEMPLATING.md)
+For advanced syntax description see [TEMPLATE_SYNTAX.md](https://github.com/ttt-fifo/blob/master/docs/TEMPLATE_SYNTAX.md)
 
 ## Examples
 
-Take a look at the [examples folder](https://github.com/ttt-fifo/conftl/tree/master/examples) from the project repository.
+There is no better knowledge than the real code. Take a look at the [examples folder](https://github.com/ttt-fifo/conftl/blob/master/examples)
 
 ## Command Line Tool for Rendering (render)
 
-* **The render command line tool works as follows:**
+conftl comes with a command line tool for quick and easy templating. It works like this:
 
-```
-render -i templatename.tmpl -o filename.conf
-```
+```bash
+$ render -i templatename.tmpl - o filename.conf
 
-will take the template from file ```templatename.tmpl``` and write the output to ```filename.conf```
-
-WARNING: filename.conf will be overwriten!!!
-
-In case input template is not given by -i, you would be expected to place template code on stdin.
-
-NOTE: For Linux and other Unix systems write template code and finish it with Ctr + D
-
-NOTE: For Windows finish template code with with Ctr + Z and then hit ENTER
-
-In case the output filename (-o) is not given, the output will be written to stdout.
-
-* **Giving context variables on the command line**
-
-You want to give ```i``` value of ```4``` and use it in your template. Use -c flag:
-
-```
-render -i templatename.tmpl -o filename.conf -c i=4
+-i input template
+-o output configuration file
 ```
 
-For assigning values to multiple variables, just repeat -c flag multiple times:
+Full description could be found in [COMMAND_LINE.md](https://github.com/ttt-fifo/conftl/blob/master/docs/COMMAND_LINE.md)
 
-```
-render -i templatename.tmpl -o filename.conf -c i=4 -c j=8 -c x=2
-```
+## Python API
 
-For assigning complex variable datatypes, wrap assignment in double quote like this:
+There are three interfaces for rendering a template from Python: the function ```render(...)```, the class ```Render``` and the decorator ```@template(...)``` .
 
-```
-render -i templatename.tmpl -o filename.conf -c "mydict={'a': 1, 'b': 'string'}"
-```
-
-* **Context from json file**
-
-The json file format should be similar to:
-
-```json
-{"myvar": 4,
- "otherthing": [1, 3, 5],
- "stringsomething": "hello world"
-}
-```
-
-You can invoke render by giving the -j option like this:
-
-```
-render -i mytemplate.tmpl -j mycontext.ctx
-```
-
-NOTE: the command line variables have precedence over json file, e.g. if you assign i=2 in json file and i=3 on command line, the final value of i will be i=3.
-
-* **Environment in context for convenience**
-
-For convenience the ENV dictionary is automatically included in the context and it contains the OS environment variables. The following example prints them on the screen:
-
-```
-render
-{{for e in ENV:}}
-{{=e}} : {{=ENV[e]}}
-{{pass}}
-..................................
-... environment will come here ...
-..................................
-```
-
-NOTE: the ENV is included automatically in context only with the command line tool, rendering from Python (the next section) does not have ENV automatically in context.
-
-*How to use ENV in templates?*
-
-Many devops / sysadmin systems pass data to their underlying scripts via environment variables. As an example the following shell commands:
-
-```
-$ export SYSTEM=production
-$
-$ render
-{{if ENV['SYSTEM'] == 'production':}}
-Listen 80
-{{elif ENV['SYSTEM'] == 'ci_cd':}}
-Listen 8080
-{{elif ENV['SYSTEM'] == 'devel':}}
-Listen 8081
-{{else:}}
-{{raise RuntimeError('wrong SYSTEM')}}
-{{pass}}
-```
-(Ctr+D at the end)
-
-will give you the output based on the SYSTEM environment variable:
-
-```
-Listen 80
-```
-
-* **Command line tool help**
-
-See ```render -h```
-
-## Rendering Template from Python
-
-There are three interfaces for rendering a template from Python: the function ```render(...)```, the class ```Render``` and the decorator ```@template(...)``` . Please see the explanation below:
-
-* **render(...) function**
-
-Consider the following example:
-
-```python
->>>
->>> from conftl import render
->>> render(content='{{=i}}', context=dict(i=8))
-'8'
->>>
-```
-
-As you can see, you can give the context= value, which is a dict, containing your variable data.
-
-The signature of the function follows:
-
-```python
-render(infile=None,
-       outfile=None,
-       context=None,
-       content=None,
-       delimiters=None)
-```
-
-You can use the function by giving infile= as argument (this is the template file). If not given, you should give the content= value - this would be a string with the template content.
-
-Output file could be given by outfile= argument. If given, the output will be written to this file. On outfile= absence, the output is returned as string.
-
-In case you need to use other delimiters than the default ```{{ }}```, you can change the delimiters like this:
-
-```python
->>>
->>> render(content='[[=i]]', context=dict(i=7), delimiters='[[ ]]')
-'7'
->>>
-```
-
-* **template decorator**
-
-Define a function which returns the context as a dict. Decorate your function with template decorator:
-
-```python
-from conftl import template
-
-# Define your function, which should output a dict
-# with the template context and decorate it with
-# template decorator
-
-@template(infile='mytemplate.tmpl', outfile='myconf.conf')
-def template_myconf(*arg, **kwarg):
-
-    # ...here your complex computations...
-    i = ....
-    j = ....
-    x = '.....'
-
-    return dict(i=i, j=j, templ_var=x)
-
-if __name__ == '__main__':
-
-    # Here invoke your function and it should create
-    # the needed myconf.conf
-
-    template_myconf(... some args...)
-```
-
-The possible arguments for template decorator are
-
-```python
-@template(infile=None,
-          outfile=None,
-          content=None,
-          delimiters=None)
-```
-
-You must give eihter infile= or content= as input. You can omit outfile= and in this case the decorated function will return the output as a string. Changing delimiters= is also possible. The function, decorated with template(...) must return dict, otherwise exception is raised.
-
-This type of context computation is well know by the web2py users, because this is the layout of the web2py controller.
-
-* **Render object**
-
-An object from Render class could be used in a long running processes. Load the object in memory once and use it multiple times for templating multiple files:
-
-
-```python
-from conftl import Render
-
-rndr = Render()
-
-# ... use it multiple times like this
-rndr.instream = open('filename.tmpl', 'r')
-rndr.outstream = open('otherfile.conf', 'w')
-rndr.context = dict(i=..., j=..., somevar='...')
-
-rndr()
-
-rndr.instream.close()
-rndr.outstream.close()
-# ....
-```
-
-The ```instream``` and ```outstream``` should be file handles or StringIO objects.
+The API description could be found here: [PYTHON_API.md](https://github.com/ttt-fifo/conftl/blob/master/docs/PYTHON_API.md)
 
 ## Known Limitations
 
 * Arbitrary Python code is possible to be executed by the current templating language. I would advice against giving opportunity to the end-users to write template code, unless you know what you are doing. Multiple attack vectors could be used by a malicious end-user who has the possibility to execute arbitrary Python code. See [security_considerations.txt](https://github.com/ttt-fifo/conftl/blob/master/docs/security_considerations.txt)
 
-* In case you want to template a HTML output, you would be better off using the web2py's templating language (called [yatl](https://github.com/web2py/yatl)). Yatl has XML escaping switched on by default and also multiple HTML helper functions.
+* In case you want to template a HTML output, you would be better off using other templating languages:
 
+web2py's templating language called [yatl](https://github.com/web2py/yatl).
+
+jinja
+
+cheetah
+
+The templating languages above have HTML escaping switched on by default, helper functions and other features suitable for web services.
 ## Contributing
 
 Testing implementation on different platforms.
 
-Do not hesitate to fork me on github.
-
 Place [issue](https://github.com/ttt-fifo/conftl/issues) if you spot issues with this code.
+
+Do not hesitate to fork me on github.
 
 ## Versioning
 
-See the [tags](https://github.com/ttt-fifo/conftl/tags) on this repository.
+See [HISTORY.txt](https://github.com/ttt-fifo/conftl/blob/master/HISTORY.txt)
+
+Also see the [tags](https://github.com/ttt-fifo/conftl/tags) on the [conftl repositiory](https://github.com/ttt-fifo/conftl).
 
 ## Authors
 
 **Todor Todorov** - [ttt-fifo](https://github.com/ttt-fifo)
 
 ## License
+
+This is open source software, free for personal and commercial use, licensed under:
 
 BSD + other copyright credits
 

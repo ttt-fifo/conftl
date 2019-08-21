@@ -4,6 +4,8 @@ render command line script for conftl rendering
 """
 from __future__ import print_function
 from conftl import Render
+from conftl._open_infile import _open_infile
+from conftl.defaults import TEMPLATE_PATH
 from collections import deque
 import sys
 import os
@@ -16,7 +18,7 @@ Usage:
 
 render -h
 render [-i infile.tmpl] [-o outfile.conf] [-d "{% %}"] [-j context.json] \
-[-c i=3] [-c j=4] ...
+[-p "search/path1, search/path2"] [-c i=3] [-c j=4] ...
 
 Options:
 
@@ -37,6 +39,9 @@ render -c "i=['complex', 'data', 'type']"
 
 -j or --json-context
 Get the context from a json file.
+
+-p or --template-path
+Search path for templates. Coma separated paths.
 
 -h or --help
 Prints current help screen.
@@ -86,6 +91,34 @@ def parse_arg(sys_argv):
     return kwarg
 
 
+def get_arg_context(context):
+    cmdcx = {}
+    for val in context:
+        cxkey, cxval = parse_context(val)
+        cmdcx[cxkey] = cxval
+    return cmdcx
+
+
+def get_arg_json(jsonfile):
+    with open(jsonfile, 'r') as f:
+        cx = f.read()
+    try:
+        jsoncx = json.loads(cx)
+    except Exception as e:
+        print('ERROR getting json context from -j', file=sys.stderr)
+        print(str(e), file=sys.stderr)
+        exit(1)
+    return jsoncx
+
+
+def get_arg_path(pathstring):
+    path = []
+    for p in pathstring.split(','):
+        p = p.strip(' ')
+        path.append(p)
+    return path
+
+
 def arg2renderarg(kwarg):
     """
     From given arg, kwarg
@@ -94,45 +127,47 @@ def arg2renderarg(kwarg):
 
     renderarg = {}
 
-    renderarg['context'] = {}
-    renderarg['delimiters'] = None
     cmdcx = {}
     jsoncx = {}
+    delimiters = None
+    infile = None
+    outfile = None
+    path = TEMPLATE_PATH
     for k in kwarg:
         if k == '-c' or k == '--context':
-            for val in kwarg[k]:
-                cxkey, cxval = parse_context(val)
-                cmdcx[cxkey] = cxval
+            cmdcx = get_arg_context(kwarg[k])
         elif k == '-j' or k == '--json-context':
-            with open(kwarg[k][0], 'r') as f:
-                cx = f.read()
-            try:
-                jsoncx = json.loads(cx)
-            except Exception as e:
-                print('ERROR getting json context from -j', file=sys.stderr)
-                print(str(e), file=sys.stderr)
-                exit(1)
+            jsoncx = get_arg_json(kwarg[k][0])
         elif k == '-d' or k == '--delimiters':
-            renderarg['delimiters'] = kwarg[k][0]
+            delimiters = kwarg[k][0]
         elif k == '-i' or k == '--infile':
-            renderarg['instream'] = open(kwarg[k][0], 'r')
+            infile = kwarg[k][0]
         elif k == '-o' or k == '--outfile':
-            renderarg['outstream'] = open(kwarg[k][0], 'w')
+            outfile = kwarg[k][0]
+        elif k == '-p' or k == '--template-path':
+            path = path + get_arg_path(kwarg[k][0])
         else:
             print('ERROR parsing arguments', file=sys.stderr)
             print(usage, file=sys.stderr)
             exit(1)
 
+    renderarg['context'] = {}
     # command line has precedence over json
     renderarg['context'].update(jsoncx)
     renderarg['context'].update(cmdcx)
     # put environment in context for convenience
     renderarg['context']['ENV'] = os.environ
 
-    if not renderarg.get('instream'):
+    renderarg['delimiters'] = delimiters
+
+    if infile:
+        renderarg['instream'] = _open_infile(infile, path)
+    else:
         renderarg['instream'] = sys.stdin
 
-    if not renderarg.get('outstream'):
+    if outfile:
+        renderarg['outstream'] = open(outfile, 'r')
+    else:
         renderarg['outstream'] = sys.stdout
 
     return renderarg

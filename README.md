@@ -104,7 +104,7 @@ Listen 808{=i}              | Listen 8081
 ------------------------------------------
 ```
 
-For advanced syntax description see [TEMPLATE_SYNTAX.md](https://github.com/ttt-fifo/blob/master/docs/TEMPLATE_SYNTAX.md)
+For advanced syntax description see [TEMPLATE_SYNTAX.md](https://github.com/ttt-fifo/conftl/blob/master/docs/TEMPLATE_SYNTAX.md)
 
 Coming from Jinja? See [JINJA.md](https://github.com/ttt-fifo/blob/master/docs/JINJA.md)
 

@@ -208,7 +208,7 @@ One valuable feature for the web templating engines is Template Inheritance. As 
 
 test.tmpl:
 
-```
+```python
 {{from conftl import render}}
 I am master template.
 {{=render('child_template.tmpl')}}
@@ -222,7 +222,7 @@ I am child template.
 
 Python REPL:
 
-```
+```python
 >>> from conftl import render
 >>> render('test.tmpl')
 'I am master template.\nI am child template.\n\n'

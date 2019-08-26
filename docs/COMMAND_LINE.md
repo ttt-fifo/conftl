@@ -14,7 +14,7 @@ Configuration Templating Language Renderer
 Usage:
 
 render -h
-render [-i infile.tmpl] [-o outfile.conf] [-d "{% %}"] [-j context.json] [-p "search/path1, search/path2"] [-c i=3] [-c j=4] ...
+render [-i infile.tmpl] [-o outfile.conf] [-d "<% %>"] [-j context.json] [-p "search/path1, search/path2"] [-c i=3] [-c j=4] ...
 
 Options:
 

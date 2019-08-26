@@ -12,13 +12,13 @@ def _open_infile(infile, path):
 
     try:
         return open(infile, 'r')
-    except Exception:
+    except FileNotFoundError:
         pass
 
     for p in path:
         try:
             return open(os.path.join(p, infile), 'r')
-        except Exception:
+        except FileNotFoundError:
             pass
 
     raise RuntimeError("Cannot find template '%s' in path '%s'" %

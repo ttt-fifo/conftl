@@ -62,8 +62,9 @@ Python Modules: [future](https://pypi.python.org/project/future)
 
 ## Template Syntax Quickstart
 
-As conftl embeds Python syntax in template, the prerequisite is to know the basic Python syntax.
-After accomplishing this prerequisite, the one must remember only the following three rules:
+As conftl embeds Python in the template, a prerequisite is one to have knowledge about the basic Python syntax.
+
+Knowing basic Python syntax one must remember only the following three rules:
 
 **Rule 1)** Python code should be enclosed in tags ```{{...}}```
 
@@ -138,9 +139,9 @@ The API description could be found here: [PYTHON_API.md](https://github.com/ttt-
 
 * In case you want to template some HTML output, you would be better off using other templating languages:
 
-* web2py's templating language called [yatl](https://github.com/web2py/yatl)
+    * web2py's templating language called [yatl](https://github.com/web2py/yatl)
 
-* [Jinja](https://github.com/pallets/jinja)
+    * [Jinja](https://github.com/pallets/jinja)
 
 The templating languages above have HTML escaping switched on by default, helper functions and other features suitable for web services.
 

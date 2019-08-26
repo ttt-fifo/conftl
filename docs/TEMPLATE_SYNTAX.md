@@ -1,6 +1,5 @@
 ## Conftl Template Syntax
 
-Conftl stands for "Configuration Templating Language". It embeds Python into the template in order to use the full power of Python syntax and logic. For this reason a person familiar with Python can learn the conftl templating in minutes. It does not have the unwanted behaviour to escape the template data by default. During templating configuration files usually there is no need to embed one template into another, therefore conftl does not implement this feature. Of course, all these missing features could be gained using the embeded Python syntax. Conftl is a 'slang' of web2py's templating language, optimized for working with textual non-html data.
 
 ## Three General Rules
 
@@ -145,7 +144,7 @@ Y                 | {{except ...:}}
 
 **Rule 3)** Variables are printed to output enclosed in tags and prepended with = like ```{{=i}}```
 
-What to expect when printing a variable to the output?
+What to expect when printing a variable to the output? Here are some examples:
 
 ```python
 TEMPLATE                    | WILL OUTPUT
@@ -195,4 +194,35 @@ Bye!                           |
 ---------------------------------------------------------------
 ```
 
-In case this template is used stand alone, without prepared variable 'name', it will output 'Hello, Friend!'. Of course, conftl have means for preparing the variable values, e.g. template context prior templating. This is done by using the command line tool ```$ render``` or the Python API - calling ```render(...)```, ```@template(...)```, or the object ```Render()```.
+Giving context to template - e.g. giving values to variables is possible via the command line tool or Python API. In case context is not given, the variable 'name' will have default value 'Friend'.
+
+## Template Context
+
+Variable values could be assigned outside of template by giving context to template via [command line](https://github.com/ttt-fifo/conftl/blob/master/docs/COMMAND_LINE.md) or via [Python API](https://github.com/ttt-fifo/conftl/blob/master/docs/PYTHON_API.md).
+
+## Template Inheritance
+
+One valuable feature for the web templating engines is Template Inheritance. As conftl is ment to be simple it does not implement this feature. However, similar behaviour may be implemented using Python language. See the following example:
+
+test.tmpl:
+
+```
+{{from conftl import render}}
+I am master template.
+{{=render('child_template.tmpl')}}
+```
+
+child_template.tmpl:
+
+```
+I am child template.
+```
+
+Python REPL:
+
+```
+>>> from conftl import render
+>>> render('test.tmpl')
+'I am master template.\nI am child template.\n\n'
+>>>
+```

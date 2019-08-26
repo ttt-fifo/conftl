@@ -11,6 +11,7 @@ if PY2:
     # cStringIO gives unicode error
     # from cStringIO import StringIO
     from StringIO import StringIO
+    import io
 
     def _unicod(data):
         typ = type(data)
@@ -21,6 +22,9 @@ if PY2:
         else:
             return str(data).decode('utf-8')
 
+    def _open(filename, mode):
+        return io.open(filename, mode, encoding='utf-8')
+
 else:
     from io import StringIO
 
@@ -30,3 +34,5 @@ else:
             return data
         else:
             return str(data)
+
+    _open = open

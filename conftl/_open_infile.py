@@ -3,6 +3,7 @@ Function _open_infile(infile, path)
 """
 import os
 import os.path
+from ._compat import _open
 
 
 def _open_infile(infile, path):
@@ -11,13 +12,13 @@ def _open_infile(infile, path):
     """
 
     try:
-        return open(infile, 'r')
+        return _open(infile, 'r')
     except FileNotFoundError:
         pass
 
     for p in path:
         try:
-            return open(os.path.join(p, infile), 'r')
+            return _open(os.path.join(p, infile), 'r')
         except FileNotFoundError:
             pass
 

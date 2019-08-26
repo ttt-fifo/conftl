@@ -1,17 +1,17 @@
 ![](conftl_tl_dr.png)
 # Configuration Templating Language
 
-Simple to learn but yet powerful language for templating your configuration files. It is a 'slang' of the [web2py](http://www.web2py.com)'s templating language, written from scratch and optimized for textual non-html data.
+Simple to learn but yet powerful language for templating your configuration files.
 
 ## Features
 
-* Simple to learn - a person who has some idea of the Python syntax could dive into conftl for 15 min.
+* Simple to learn - a person familiar with the Python syntax basics could dive into conftl for 15 min.
 
 * Powerful - Python code in templating.
 
 * Command line tool for rendering.
 
-* Different methods for trigerring rendering from Python code.
+* Python API for rendering
 
 * Suitable for system administration, devops and similar roles.
 
@@ -23,16 +23,8 @@ Simple to learn but yet powerful language for templating your configuration file
 
 Install conftl using pip:
 
-```
-pip install conftl
-```
-
-Alternatively download the source code:
-
-```
-git clone https://github.com/ttt-fifo/conftl
-cd conftl
-python setup.py install
+```bash
+$ pip install conftl
 ```
 
 Hello world from the command line:
@@ -43,7 +35,9 @@ Hello, {{=name}}
 Hello, John Smith
 ```
 
-NOTE: Write ```Hello, {{=name}}``` on stdin, followed by Enter, Ctr+D
+NOTE: Unix: Write ```Hello, {{=name}}``` on stdin, followed by Enter, Ctr+D
+
+NOTE: Windows: Write ```Hello, {{=name}}``` on stdin, followed by Enter, Ctr+Z, Enter
 
 Hello world from the Python REPL:
 
@@ -64,7 +58,7 @@ Python 2.7 or Python 3.x
 
 Please place an [issue](https://github.com/ttt-fifo/conftl/issues) in case the current implementation is not working with your platform and I will help.
 
-Python Modules: future
+Python Modules: [future](https://pypi.python.org/project/future)
 
 ## Template Syntax Quickstart
 
@@ -103,13 +97,17 @@ Hi, there!                  | Hi, there!
 ```python
 TEMPLATE                    | WILL OUTPUT
 ------------------------------------------
-{{for i in range(0, 3):}}   | 0 Hi, there!
-{{=i}} Hi, there!           | 1 Hi, there!
-{{pass}}                    | 2 Hi, there!
+{{for i in range(0, 3):}}   | Listen 8080
+Listen 808{=i}              | Listen 8081
+{{pass}}                    | Listen 8082
 ------------------------------------------
 ```
 
 For advanced syntax description see [TEMPLATE_SYNTAX.md](https://github.com/ttt-fifo/blob/master/docs/TEMPLATE_SYNTAX.md)
+
+Coming from Jinja? See [JINJA.md](https://github.com/ttt-fifo/blob/master/docs/JINJA.md)
+
+Coming from Web2py? See [WEB2PY.md](https://github.com/ttt-fifo/blob/master/docs/WEB2PY.md)
 
 ## Examples
 
@@ -140,11 +138,9 @@ The API description could be found here: [PYTHON_API.md](https://github.com/ttt-
 
 * In case you want to template some HTML output, you would be better off using other templating languages:
 
-web2py's templating language called [yatl](https://github.com/web2py/yatl).
+* web2py's templating language called [yatl](https://github.com/web2py/yatl)
 
-jinja
-
-cheetah
+* [Jinja](https://github.com/pallets/jinja)
 
 The templating languages above have HTML escaping switched on by default, helper functions and other features suitable for web services.
 
@@ -161,6 +157,8 @@ Do not hesitate to fork me on github.
 See [HISTORY.txt](https://github.com/ttt-fifo/conftl/blob/master/HISTORY.txt)
 
 Also see the [tags](https://github.com/ttt-fifo/conftl/tags) on the [conftl repositiory](https://github.com/ttt-fifo/conftl).
+
+The current project uses [Semantic Versioning](https://semver.org)
 
 ## Authors
 
@@ -182,10 +180,10 @@ Logo: [server](https://www.vrt.com.au/downloads/vrt-network-equipment), [icons](
 
 ## See Also
 
-Differences between conftl and yatl from the document [differences_yatl.txt](https://github.com/ttt-fifo/conftl/blob/master/docs/differences_yatl.txt)
-
 [web2py on github](https://github.com/web2py/web2py)
 
 web2py templating language [yatl](https://github.com/web2py/yatl)
 
 Another implementation of the same templating language may be found at the [weppy](https://github.com/gi0baro/weppy) project.
+
+[jinja on github](https://github.com/pallets/jinja)

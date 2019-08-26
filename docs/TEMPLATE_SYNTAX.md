@@ -128,6 +128,7 @@ Z
 
 Here are some examples of **invalid python blocks**:
 
+```python
 INVALID           | EXPLANATION
 -----------------------------------------
 {{i = 0           | Block start should be
@@ -141,6 +142,7 @@ X                 | in front of
 Y                 | {{except ...:}}
 {{pass}}          | {{finally:}}
 -----------------------------------------
+```
 
 **Rule 3)** Variables are printed to output enclosed in tags and prepended with = like ```{{=i}}```
 

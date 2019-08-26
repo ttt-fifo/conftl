@@ -1,6 +1,6 @@
 body {
     font-family: Georgia, "Times New Roman", Times, serif;
-    font-weight: bold;
+    /* font-weight: bold;*/
     font-size: large;
     margin: 10;
     background-color: #a1bbd4;
@@ -27,9 +27,19 @@ body {
     margin: 3px;
     padding: 5px 5px 5px 5px;
 }
+.body pre {
+    background-color: #a1bbd4;
+    color: #12102e; 
+}
+.body a {
+    color: #12102e; 
+}
 .footer {
     background-color: #12102e; 
     padding: 5px 5px 5px 5px;
+    font-weight: normal;
+    font-size: large;
+    color: #a1bbd4;
 }
 .footer a {
     color: #ffb129;

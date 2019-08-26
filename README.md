@@ -106,9 +106,9 @@ Listen 808{=i}              | Listen 8081
 
 For advanced syntax description see [TEMPLATE_SYNTAX.md](https://github.com/ttt-fifo/conftl/blob/master/docs/TEMPLATE_SYNTAX.md)
 
-Coming from Jinja? See [JINJA.md](https://github.com/ttt-fifo/blob/master/docs/JINJA.md)
+Coming from Jinja? See [JINJA.md](https://github.com/ttt-fifo/conftl/blob/master/docs/JINJA.md)
 
-Coming from Web2py? See [WEB2PY.md](https://github.com/ttt-fifo/blob/master/docs/WEB2PY.md)
+Coming from Web2py? See [WEB2PY.md](https://github.com/ttt-fifo/conftl/blob/master/docs/WEB2PY.md)
 
 ## Examples
 
